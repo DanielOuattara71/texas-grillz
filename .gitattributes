@@ -1,0 +1,9 @@
+# Normalise les fins de ligne : le dépôt est travaillé depuis WSL (Linux)
+# et Windows, sans quoi chaque édition introduit un bruit CRLF/LF inutile.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.mp4 binary
+*.woff binary
+*.woff2 binary
