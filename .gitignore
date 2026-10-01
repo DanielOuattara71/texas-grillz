@@ -22,3 +22,27 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Photos brutes reçues par WhatsApp : dépôt d'origine des visuels, confidentiel,
+# jamais publié. Le site ne lit que public/images/ (voir scripts/place-photos.ps1).
+incoming-whatsapp/
+
+# Scripts jetables d'un seul tour (inspection du ZIP, vignettes, optimisation) :
+# le seul script utile est conservé, scripts/place-photos.ps1.
+scripts/tmp-*.ps1
+
+# Artefacts Windows (flux alternés « Zone.Identifier » collés aux fichiers téléchargés)
+*Zone.Identifier
+
+# ── Racine du dépôt : rien de tout cela ne fait partie du site ───────────────
+# Captures d'écran de travail et exports reçus du client.
+Capture d'écran*.png
+WhatsApp Image*.jpeg
+WhatsApp Unknown*.zip
+WhatsApp *.jpeg
+
+# ── Vidéos : trop lourdes pour Git (66 Mo) ──────────────────────────────────
+# Les boucles de la galerie et du hero sont versionnées à part (stockage objet
+# ou Git LFS) puis déposées dans public/videos/. Voir public/videos/README.md :
+# sans ces fichiers, npm run check:media sort en erreur.
+public/videos/*.mp4
