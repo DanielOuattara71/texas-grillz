@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "check:contrast": "node scripts/check-contrast.mjs",
+    "check:media": "node scripts/check-media.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

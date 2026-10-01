@@ -3,10 +3,12 @@ import { useEffect } from "react";
 interface LightboxProps {
   src: string;
   alt: string;
+  /** Un visuel vidéo s'ouvre avec ses propres contrôles, pas comme une image. */
+  type?: "image" | "video";
   onClose: () => void;
 }
 
-export function Lightbox({ src, alt, onClose }: LightboxProps) {
+export function Lightbox({ src, alt, type = "image", onClose }: LightboxProps) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -34,12 +36,23 @@ export function Lightbox({ src, alt, onClose }: LightboxProps) {
       >
         Fermer ✕
       </button>
-      <img
-        src={src}
-        alt={alt}
-        className="max-w-full max-h-[85vh] rounded-card object-contain shadow-stack"
-        onClick={(e) => e.stopPropagation()}
-      />
+      {type === "video" ? (
+        <video
+          src={src}
+          controls
+          autoPlay
+          playsInline
+          className="max-h-[85vh] max-w-full rounded-card bg-charcoal shadow-stack"
+          onClick={(e) => e.stopPropagation()}
+        />
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          className="max-w-full max-h-[85vh] rounded-card object-contain shadow-stack"
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
     </div>
   );
 }

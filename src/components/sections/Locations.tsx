@@ -3,6 +3,7 @@ import { Container } from "../ui/Container";
 import { SectionHeading } from "../ui/SectionHeading";
 import { Numeral } from "../ui/Numeral";
 import { AvailabilityPill } from "../ui/AvailabilityPill";
+import { FoodMedia } from "../ui/FoodMedia";
 import { locations } from "../../data/locations";
 import { standardSchedule } from "../../data/hours";
 import {
@@ -43,15 +44,16 @@ export function Locations() {
               <div className="card-surface-dark overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-2">
                   <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[400px]">
-                    <img
-                      src={location.image}
+                    <FoodMedia
+                      label={location.name}
                       alt={location.name}
+                      photo={location.image}
+                      eager={i === 0}
                       className={
                         location.status === "bientot"
-                          ? "h-full w-full object-cover opacity-60 grayscale-[0.75]"
-                          : "h-full w-full object-cover"
+                          ? "opacity-60 grayscale-[0.75]"
+                          : undefined
                       }
-                      loading="lazy"
                     />
                     <div className="absolute inset-0 hidden bg-gradient-to-r from-transparent to-coal/60 md:block" />
                     {/* Grillage de l'affiche, posé sur la photo du site */}

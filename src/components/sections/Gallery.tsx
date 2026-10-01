@@ -3,6 +3,7 @@ import { Container } from "../ui/Container";
 import { SectionHeading } from "../ui/SectionHeading";
 import { Reveal } from "../ui/Reveal";
 import { Lightbox } from "../common/Lightbox";
+import { FoodMedia } from "../ui/FoodMedia";
 import { cn } from "../../utils/cn";
 
 interface GalleryItem {
@@ -12,16 +13,24 @@ interface GalleryItem {
   ratio: string;
 }
 
+/**
+ * Visuels réels déposés dans `public/images/gallery/` (tirages du restaurant).
+ * Les boucles vidéo passent par `FoodMedia` : elles ne se chargent que sur
+ * écran à pointeur sans mouvement refusé — 66 Mo économisés sur mobile, où
+ * l'assiette dessinée prend le relais.
+ */
 const items: GalleryItem[] = [
-  { type: "image", src: "/images/gallery/1.svg", alt: "Brisket fumé", ratio: "row-span-2" },
+  { type: "image", src: "/images/gallery/1.jpg", alt: "Grande planche de grillades gravée Texas Grillz", ratio: "row-span-2" },
   { type: "video", src: "/videos/Download (6).mp4", alt: "Cuisson au feu de bois", ratio: "" },
-  { type: "image", src: "/images/gallery/2.svg", alt: "Ribs St. Louis", ratio: "" },
+  { type: "image", src: "/images/gallery/2.jpg", alt: "Viandes fumées, frites et crudités sur planche", ratio: "" },
   { type: "video", src: "/videos/Download (7).mp4", alt: "Préparation des viandes", ratio: "row-span-2" },
-  { type: "image", src: "/images/gallery/4.svg", alt: "Mac & Cheese", ratio: "" },
+  { type: "image", src: "/images/gallery/3.jpg", alt: "Planche à partager : riz, plantain et brochettes", ratio: "" },
+  { type: "image", src: "/images/gallery/4.jpg", alt: "Brochettes de gambas grillées", ratio: "" },
   { type: "video", src: "/videos/Download (8).mp4", alt: "Ambiance en salle", ratio: "" },
-  { type: "image", src: "/images/gallery/5.svg", alt: "Pecan Pie", ratio: "" },
+  { type: "image", src: "/images/gallery/5.jpg", alt: "Assortiment de brochettes, poulet et frites", ratio: "" },
+  { type: "image", src: "/images/gallery/6.jpg", alt: "Planche qui sort de la cuisine", ratio: "" },
   { type: "video", src: "/videos/Download (10).mp4", alt: "Desserts maison", ratio: "" },
-  { type: "image", src: "/images/gallery/6.svg", alt: "Ambiance salle", ratio: "" },
+  { type: "image", src: "/images/gallery/7.jpg", alt: "Purée maison en bol, crudités et sauce", ratio: "" },
 ];
 
 export function Gallery() {
@@ -55,23 +64,12 @@ export function Gallery() {
                 )}
                 aria-label={`Agrandir : ${item.alt}`}
               >
-                {item.type === "video" ? (
-                  <video
-                    src={item.src}
-                    muted
-                    loop
-                    playsInline
-                    autoPlay
-                    className="food-shot w-full h-full object-cover group-hover:scale-110"
-                  />
-                ) : (
-                  <img
-                    src={item.src}
-                    alt={item.alt}
-                    className="food-shot w-full h-full object-cover group-hover:scale-110"
-                    loading="lazy"
-                  />
-                )}
+                <FoodMedia
+                  label={item.alt}
+                  alt={item.alt}
+                  photo={item.type === "image" ? item.src : undefined}
+                  video={item.type === "video" ? item.src : undefined}
+                />
                 <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/40 transition-colors duration-300 flex items-center justify-center">
                   {item.type === "video" && (
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-gold text-4xl">
@@ -89,6 +87,7 @@ export function Gallery() {
         <Lightbox
           src={items[lightboxIndex].src}
           alt={items[lightboxIndex].alt}
+          type={items[lightboxIndex].type}
           onClose={() => setLightboxIndex(null)}
         />
       )}

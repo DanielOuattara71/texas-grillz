@@ -92,8 +92,8 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               <div className="relative">
                 <div className="aspect-[4/3] rounded-card overflow-hidden bg-coal shadow-2xl shadow-ink/10">
                   <img
-                    src="/images/concept.svg"
-                    alt="Texas GrillZ — débuts"
+                    src="/images/histoire.jpg"
+                    alt="Planches fumées servies chez Texas GrillZ"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -109,8 +109,8 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               <div className="relative">
                 <div className="aspect-[4/3] rounded-card overflow-hidden bg-coal shadow-2xl shadow-ink/10">
                   <img
-                    src="/images/gallery/6.svg"
-                    alt="Texas GrillZ — évolution"
+                    src="/images/locations/lyon-3.jpg"
+                    alt="Salle de Texas GrillZ en service"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />

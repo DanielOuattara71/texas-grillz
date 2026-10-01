@@ -12,6 +12,11 @@ export interface Location {
    * générée depuis `schedule`, comme le statut en direct.
    */
   hours?: string;
+  /**
+   * Photo réelle de l'adresse : `public/images/locations/<id>.jpg`.
+   * Tant que le tirage n'est pas déposé, `ui/FoodMedia.tsx` affiche une
+   * carte dessinée plutôt qu'un cadre vide.
+   */
   image: string;
   mapsUrl: string;
   /** "bientot" : carte en attente d'ouverture (sans réservation) */
@@ -28,7 +33,7 @@ export const locations: Location[] = [
     address: "12 Rue de la Villette, 69003 Lyon",
     phone: "04 78 00 00 00",
     schedule: standardSchedule,
-    image: "/images/gallery/1.svg",
+    image: "/images/locations/lyon-3.jpg",
     mapsUrl: "https://maps.google.com/?q=12+Rue+de+la+Villette+69003+Lyon",
   },
   {
@@ -38,7 +43,7 @@ export const locations: Location[] = [
     address: "45 Avenue Berthelot, 69007 Lyon",
     phone: "04 78 00 00 01",
     schedule: lateSchedule,
-    image: "/images/gallery/2.svg",
+    image: "/images/locations/lyon-7.jpg",
     mapsUrl: "https://maps.google.com/?q=45+Avenue+Berthelot+69007+Lyon",
   },
   {
@@ -48,7 +53,7 @@ export const locations: Location[] = [
     address: "8 Cours Émile Zola, 69100 Villeurbanne",
     phone: "04 78 00 00 02",
     schedule: standardSchedule,
-    image: "/images/gallery/3.svg",
+    image: "/images/locations/villeurbanne.jpg",
     mapsUrl: "https://maps.google.com/?q=8+Cours+Emile+Zola+69100+Villeurbanne",
   },
   {
@@ -58,7 +63,7 @@ export const locations: Location[] = [
     address: "Secteur Croix-Rousse / Caluire — adresse confirmée à l'ouverture",
     phone: "04 78 00 00 00",
     hours: "Ouverture automne 2026",
-    image: "/images/gallery/4.svg",
+    image: "/images/locations/caluire.jpg",
     mapsUrl: "https://maps.google.com/?q=Caluire-et-Cuire",
     status: "bientot",
   },
