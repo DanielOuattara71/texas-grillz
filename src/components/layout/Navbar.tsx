@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useScrollY } from "../../hooks/useScrollY";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
-import { navLinks } from "../../data/site";
+import { useContent } from "../../content/store";
+import { mediaUrl } from "../../utils/photoSlot";
 import { cn } from "../../utils/cn";
 
 interface NavbarProps {
@@ -10,6 +11,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onNavigate, homeOnly = false }: NavbarProps) {
+  const { navLinks, visuals, texts } = useContent();
   const scrollY = useScrollY();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -45,7 +47,7 @@ export function Navbar({ onNavigate, homeOnly = false }: NavbarProps) {
             aria-label="Retour à l'accueil"
           >
             <img
-              src="/logo.jpg"
+              src={mediaUrl(visuals.logo?.src || "/logo.jpg")}
               alt="Texas GrillZ"
               className="w-9 h-9 rounded-full object-cover"
             />
@@ -72,7 +74,7 @@ export function Navbar({ onNavigate, homeOnly = false }: NavbarProps) {
                     onClick={() => onNavigate?.("histoire")}
                     className="relative text-sm font-medium text-cream/70 hover:text-cream transition-colors duration-200 py-2 after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-gold after:scale-x-0 after:origin-left hover:after:scale-x-100 after:transition-transform after:duration-300"
                   >
-                    Notre Histoire
+                    {texts.nav.historyLabel}
                   </button>
                 </li>
               </ul>
@@ -164,7 +166,7 @@ export function Navbar({ onNavigate, homeOnly = false }: NavbarProps) {
                   }}
                   className="block py-4 text-xl font-display text-cream/80 hover:text-gold hover:translate-x-2 transition-all duration-200 text-left"
                 >
-                  Notre Histoire
+                  {texts.nav.historyLabel}
                 </button>
               </li>
             </ul>
@@ -181,7 +183,7 @@ export function Navbar({ onNavigate, homeOnly = false }: NavbarProps) {
                 onClick={() => setMenuOpen(false)}
                 className="block bg-gold text-coal text-center font-semibold px-6 py-4 rounded-full uppercase tracking-wide"
               >
-                Réserver une table
+                {texts.nav.ctaLabel}
               </a>
             </div>
           </nav>

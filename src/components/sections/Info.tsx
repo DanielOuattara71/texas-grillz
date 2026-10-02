@@ -1,9 +1,11 @@
 import { Container } from "../ui/Container";
 import { SectionHeading } from "../ui/SectionHeading";
 import { RevealGroup } from "../ui/RevealGroup";
-import { site } from "../../data/site";
+import { useContent, useHourLines } from "../../content/store";
 
 export function Info() {
+  const { address, phone, email, texts } = useContent();
+  const hours = useHourLines();
   return (
     <section id="infos" className="section-stack relative overflow-hidden bg-charcoal py-24 md:py-36">
       {/* Le mur de l'affiche, en fond de page : très présent en haut, estompé ensuite */}
@@ -14,11 +16,11 @@ export function Info() {
       />
       <Container className="relative">
         <SectionHeading
-          number="08"
-          label="Infos Pratiques"
-          title="Nous"
-          accent="Trouver"
-          subtitle="Horaires, adresse et contact — on vous attend."
+          number={texts.info.number}
+          label={texts.info.label}
+          title={texts.info.title}
+          accent={texts.info.accent}
+          subtitle={texts.info.subtitle}
           dark
         />
 
@@ -29,7 +31,7 @@ export function Info() {
                 Horaires
               </h3>
               <ul className="space-y-4">
-                {site.hours.map((h) => (
+                {hours.map((h) => (
                   <li
                     key={h.days}
                     className="flex items-center justify-between border-b border-gold/15 pb-4"
@@ -50,7 +52,7 @@ export function Info() {
                 <h3 className="eyebrow text-gold mb-4">
                   Adresse
                 </h3>
-                <p className="text-cream leading-relaxed">{site.address}</p>
+                <p className="text-cream leading-relaxed">{address}</p>
               </div>
               <div>
                 <h3 className="eyebrow text-gold mb-4">
@@ -59,18 +61,18 @@ export function Info() {
                 <ul className="space-y-3">
                   <li>
                     <a
-                      href={`tel:${site.phone.replace(/\s/g, "")}`}
+                      href={`tel:${phone.replace(/\s/g, "")}`}
                       className="text-cream hover:text-gold transition-colors duration-200"
                     >
-                      {site.phone}
+                      {phone}
                     </a>
                   </li>
                   <li>
                     <a
-                      href={`mailto:${site.email}`}
+                      href={`mailto:${email}`}
                       className="text-cream hover:text-gold transition-colors duration-200"
                     >
-                      {site.email}
+                      {email}
                     </a>
                   </li>
                 </ul>
@@ -80,7 +82,7 @@ export function Info() {
                   Réservation
                 </h3>
                 <p className="text-smoke text-sm leading-relaxed">
-                  Par téléphone ou en ligne. Réservation recommandée le week-end.
+                  {texts.info.reservationNote}
                 </p>
               </div>
             </div>

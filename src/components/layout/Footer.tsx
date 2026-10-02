@@ -1,4 +1,5 @@
-import { site, navLinks } from "../../data/site";
+import { useContent, useHourLines } from "../../content/store";
+import { mediaUrl } from "../../utils/photoSlot";
 import { Container } from "../ui/Container";
 
 interface FooterProps {
@@ -6,6 +7,9 @@ interface FooterProps {
 }
 
 export function Footer({ onNavigate }: FooterProps) {
+  const { address, phone, email, tagline, established, social, navLinks, visuals } =
+    useContent();
+  const hours = useHourLines();
   return (
     <footer className="relative overflow-hidden bg-charcoal text-cream">
       {/* Brique très discrète : l'écho du mur d'affiche, sous le pied de page */}
@@ -14,7 +18,7 @@ export function Footer({ onNavigate }: FooterProps) {
       <Container className="relative pb-28 pt-16 md:pb-24 md:pt-24">
         <div className="flex flex-col items-center text-center mb-16">
           <img
-            src="/logo.jpg"
+            src={mediaUrl(visuals.logo?.src || "/logo.jpg")}
             alt="Texas GrillZ"
             className="w-56 h-56 md:w-80 md:h-80 rounded-full object-cover shadow-2xl shadow-gold/25 mb-8"
           />
@@ -24,7 +28,7 @@ export function Footer({ onNavigate }: FooterProps) {
               GrillZ
             </span>
           </span>
-          <p className="text-smoke mt-3 text-sm">{site.tagline} — Depuis {site.established}</p>
+          <p className="text-smoke mt-3 text-sm">{tagline} — Depuis {established}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 mb-16">
@@ -59,21 +63,21 @@ export function Footer({ onNavigate }: FooterProps) {
               Contact
             </h3>
             <ul className="flex flex-col gap-3 text-sm">
-              <li className="text-smoke">{site.address}</li>
+              <li className="text-smoke">{address}</li>
               <li>
                 <a
-                  href={`tel:${site.phone.replace(/\s/g, "")}`}
+                  href={`tel:${phone.replace(/\s/g, "")}`}
                   className="text-smoke hover:text-cream transition-colors duration-200"
                 >
-                  {site.phone}
+                  {phone}
                 </a>
               </li>
               <li>
                 <a
-                  href={`mailto:${site.email}`}
+                  href={`mailto:${email}`}
                   className="text-smoke hover:text-cream transition-colors duration-200"
                 >
-                  {site.email}
+                  {email}
                 </a>
               </li>
             </ul>
@@ -84,7 +88,7 @@ export function Footer({ onNavigate }: FooterProps) {
               Horaires
             </h3>
             <ul className="flex flex-col gap-3 text-sm">
-              {site.hours.map((h) => (
+              {hours.map((h) => (
                 <li key={h.days} className="flex justify-between gap-4">
                   <span className="text-smoke">{h.days}</span>
                   <span className="font-display tabular-nums text-gold">
@@ -98,10 +102,10 @@ export function Footer({ onNavigate }: FooterProps) {
 
         <div className="border-t border-cream/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-ash text-xs">
-            © {new Date().getFullYear()} {site.name}. Tous droits réservés.
+            © {new Date().getFullYear()} Texas GrillZ. Tous droits réservés.
           </p>
           <div className="flex items-center gap-6">
-            {Object.entries(site.social).map(([name, url]) => (
+            {Object.entries(social).map(([name, url]) => (
               <a
                 key={name}
                 href={url}

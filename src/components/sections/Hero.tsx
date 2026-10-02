@@ -1,14 +1,21 @@
 import { useScrollY } from "../../hooks/useScrollY";
+import { useContent } from "../../content/store";
+import { mediaUrl } from "../../utils/photoSlot";
 import { Button } from "../ui/Button";
 import { Reveal } from "../ui/Reveal";
 import { Magnetic } from "../ui/Magnetic";
 import { TextReveal } from "../ui/TextReveal";
 
 export function Hero() {
+  const { visuals, texts } = useContent();
   const scrollY = useScrollY();
   const bgOffset = scrollY * 0.2;
   const midOffset = scrollY * 0.4;
   const frontOffset = scrollY * 0.6;
+
+  // Le visuel du hero est modifiable depuis l'admin (onglet « Visuels du site »).
+  // Le fond charbon reste le repli si aucune image n'est associee.
+  const hero = visuals.hero;
 
   return (
     <section
@@ -19,14 +26,25 @@ export function Hero() {
         className="absolute inset-0"
         style={{ transform: `translateY(${bgOffset}px)` }}
       >
-        <video
-          src="/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full h-full object-cover"
-        />
+        {hero?.src ? (
+          // Photo choisie dans l'admin : elle couvre l'ecran. La boucle
+          // ci-dessous ne sert que de repli tant qu'aucune photo n'est
+          // associee — c'est elle qui donne le mouvement « fume » de l'accueil.
+          <img
+            src={mediaUrl(hero.src)}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <video
+            src="/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="h-full w-full object-cover"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-charcoal/70 via-charcoal/50 to-charcoal" />
       </div>
 
@@ -42,7 +60,7 @@ export function Hero() {
         <div className="flex flex-wrap items-center justify-center gap-4">
           <span className="h-px w-8 bg-gold/50" aria-hidden="true" />
           <span className="font-display text-xs uppercase tracking-[0.24em] text-cream">
-            Barbecue au feu de bois — Lyon
+            {texts.hero.eyebrow}
           </span>
           <span className="h-px w-8 bg-gold/50" aria-hidden="true" />
         </div>
@@ -56,8 +74,7 @@ export function Hero() {
 
         <Reveal variant="up" delay={760}>
           <p className="mx-auto mt-8 max-w-xl font-serif text-[17px] italic leading-relaxed text-cream/75 md:text-[19px]">
-            Ça fume depuis l'aube : croûte de poivre noir, laque miel-bourbon,
-            accompagnements faits le matin même.
+            {texts.hero.paragraph}
           </p>
         </Reveal>
 
@@ -65,12 +82,12 @@ export function Hero() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Magnetic>
               <Button href="#contact" variant="primary">
-                Réserver une table
+                {texts.hero.ctaPrimary}
               </Button>
             </Magnetic>
             <Magnetic>
               <Button href="#menu" variant="secondary">
-                Découvrir la carte
+                {texts.hero.ctaSecondary}
               </Button>
             </Magnetic>
           </div>

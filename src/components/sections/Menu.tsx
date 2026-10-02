@@ -21,6 +21,7 @@ import {
   type FilterId,
 } from "../../utils/menu";
 import { cn } from "../../utils/cn";
+import { useContent } from "../../content/store";
 import { TopOrdered } from "../ui/TopOrdered";
 
 /** Ligne de plat : visuel dévoilé en volet (clip-path) + zoom lent au survol. */
@@ -65,8 +66,11 @@ function DishRow({ item, index }: { item: MenuItem; index: number }) {
  * Le plat le plus commandé en grand format : c'est lui qui donne faim en
  * premier, avant même qu'on ouvre une catégorie.
  */
-function SignatureDish() {
-  const dish = topOrdered(1)[0];
+function SignatureDish({ items }: { items: MenuItem[] }) {
+  const dish = topOrdered(1, items)[0];
+
+  // Sans aucun plat (carte vide depuis l'admin), on n'affiche pas de bloc.
+  if (!dish) return null;
 
   return (
     <Reveal variant="up" delay={80}>
@@ -112,21 +116,22 @@ function SignatureDish() {
 export function MenuSection() {
   const [open, setOpen] = useState<CategoryId | null>(categories[0].id);
   const [filter, setFilter] = useState<FilterId>("all");
+  const { menu, texts } = useContent();
 
   return (
     <section id="menu" className="section-stack bg-charcoal py-24 md:py-36">
       <Container>
         <SectionHeading
-          number="04"
-          label="La Carte"
-          title="Nos"
-          accent="Spécialités"
-          count={`${totalDishes} plats`}
-          subtitle="Fumage lent au bois de hêtre, assaisonnements maison. Ouvrez une catégorie pour dérouler les plats."
+          number={texts.menu.number}
+          label={texts.menu.label}
+          title={texts.menu.title}
+          accent={texts.menu.accent}
+          count={`${totalDishes(menu)} plats`}
+          subtitle={texts.menu.subtitle}
           dark
         />
 
-        <SignatureDish />
+        <SignatureDish items={menu} />
 
         <Reveal variant="up" delay={120}>
           <FilterChips
@@ -139,7 +144,7 @@ export function MenuSection() {
 
         <div className="border-b border-cream/10">
           {categories.map((category, i) => {
-            const items = applyFilter(itemsOf(category.id), filter);
+            const items = applyFilter(itemsOf(category.id, menu), filter);
             const isOpen = open === category.id;
 
             return (
@@ -208,7 +213,7 @@ export function MenuSection() {
           })}
         </div>
 
-        <TopOrdered />
+        <TopOrdered items={menu} />
       </Container>
     </section>
   );

@@ -3,9 +3,9 @@ import { SectionHeading } from "../ui/SectionHeading";
 import { Reveal } from "../ui/Reveal";
 import { FoodMedia } from "../ui/FoodMedia";
 import { photoSlot } from "../../utils/photoSlot";
-import { cravings, type Craving } from "../../data/cravings";
-import { menuItems } from "../../data/menu";
-import { priceSpan, totalDishes } from "../../utils/menu";
+import { useContent } from "../../content/store";
+import { type Craving } from "../../data/cravings";
+import { priceSpan } from "../../utils/menu";
 import { formatPrice } from "../../utils/formatPrice";
 import { cn } from "../../utils/cn";
 
@@ -86,6 +86,13 @@ function CravingCard({
  * C'est la partie qui donne envie de manger — photographies, prix, accroches.
  */
 export function Cravings() {
+  // Les envies sont resoutes sur la carte reellement affichee (voir
+  // `content/store.tsx`) : si l'admin modifie un prix ou supprime un plat,
+  // les tuiles suivent sans qu'aucun code ne soit touche.
+  const { cravings, menu, texts } = useContent();
+
+  if (cravings.length === 0) return null;
+
   const featured = cravings.find((craving) => craving.featured) ?? cravings[0];
   const rest = cravings.filter((craving) => craving.id !== featured.id);
 
@@ -98,12 +105,12 @@ export function Cravings() {
 
       <Container className="relative">
         <SectionHeading
-          number="01"
-          label="Envies du feu"
-          title="Ça fume,"
-          accent="ça colle aux doigts"
+          number={texts.cravings.number}
+          label={texts.cravings.label}
+          title={texts.cravings.title}
+          accent={texts.cravings.accent}
           count={`${cravings.length} plats`}
-          subtitle="Tout sort du smoker le matin même : quatre coupes fumées, trois accompagnements maison, une tarte aux pécan. Choisissez d'abord avec les yeux."
+          subtitle={texts.cravings.subtitle}
           align="left"
           className="mb-12 md:mb-16"
         />
@@ -131,7 +138,7 @@ export function Cravings() {
           <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-card border border-cocoa/12 bg-shell/80 px-6 py-5 sm:flex-row sm:items-center">
             <p className="text-[15px] leading-relaxed text-cocoa/85">
               <span className="eyebrow mr-3 text-glaze">Toute la carte</span>
-              {totalDishes} plats et accompagnements, de {priceSpan(menuItems)} —
+              {menu.length} plats et accompagnements, de {priceSpan(menu)} —
               cuisinés le matin même, servis jusqu'au dernier morceau.
             </p>
             <a

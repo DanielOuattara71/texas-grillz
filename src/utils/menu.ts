@@ -1,4 +1,12 @@
-import { menuItems, type MenuItem } from "../data/menu";
+/**
+ * Utilitaires de la carte.
+ *
+ * Toutes les fonctions prennent la carte en parametre et tombent sur les
+ * donnees livrees par defaut. C'est ce qui permet au site de fonctionner avec
+ * la carte issue de l'API (modifiable depuis l'admin) tout en gardant le
+ * fonctionnement hors ligne : aucun calcul n'est fige au chargement.
+ */
+import { menuItems as deliveredMenu, type MenuItem } from "../data/menu";
 import { formatPrice } from "./formatPrice";
 
 export type CategoryId = MenuItem["category"];
@@ -39,8 +47,11 @@ export const filters: { id: FilterId; label: string }[] = [
   { id: "nouveau", label: "Nouveautés" },
 ];
 
-export const itemsOf = (id: CategoryId): MenuItem[] =>
-  menuItems.filter((item) => item.category === id);
+/** Plats d'une categorie. */
+export const itemsOf = (
+  id: CategoryId,
+  items: MenuItem[] = deliveredMenu
+): MenuItem[] => items.filter((item) => item.category === id);
 
 export const applyFilter = (items: MenuItem[], filter: FilterId): MenuItem[] =>
   filter === "all" ? items : items.filter((item) => item.badge === filter);
@@ -54,9 +65,16 @@ export const priceSpan = (items: MenuItem[]): string => {
   return min === max ? min : `${min} – ${max}`;
 };
 
-/** Nombre total de plats, affiché dans le titre de section. */
-export const totalDishes = menuItems.length;
+/**
+ * Nombre total de plats, affiche dans le titre de section. Prend la carte en
+ * parametre : compte les plats reellement affiches, pas ceux du fichier.
+ */
+export const totalDishes = (items: MenuItem[] = deliveredMenu): number =>
+  items.length;
 
-/** Classement des plats les plus commandés (bloc « Top 5 » sous la carte). */
-export const topOrdered = (limit = 5): MenuItem[] =>
-  [...menuItems].sort((a, b) => b.orders - a.orders).slice(0, limit);
+/** Classement des plats les plus commandes (bloc « Top 5 » sous la carte). */
+export const topOrdered = (
+  limit = 5,
+  items: MenuItem[] = deliveredMenu
+): MenuItem[] =>
+  [...items].sort((a, b) => b.orders - a.orders).slice(0, limit);

@@ -4,12 +4,19 @@ import { TextReveal } from "../ui/TextReveal";
 import { Magnetic } from "../ui/Magnetic";
 import { FoodMedia } from "../ui/FoodMedia";
 import { Navbar } from "../layout/Navbar";
+import { useContent } from "../../content/store";
+import { mediaUrl } from "../../utils/photoSlot";
 
 interface HistoryPageProps {
   onBack: () => void;
 }
 
 export function HistoryPage({ onBack }: HistoryPageProps) {
+  // Les trois photos de la page sont modifiables depuis l'admin.
+  const { visuals, historyTexts: copy } = useContent();
+  const logo = visuals.logo?.src ?? "/logo.jpg";
+  const portrait = visuals.fondateur?.src || logo;
+
   return (
     <main className="bg-cream min-h-screen">
       <Navbar homeOnly onNavigate={() => onBack()} />
@@ -20,7 +27,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
             label="Braises et fumée"
             alt="Viandes en train de fumer au-dessus des braises"
             video="/videos/Barbecue_grilling_meat_over_coals_20260927120421.mp4"
-            photo="/images/hero.svg"
+            photo={visuals.hero?.src || ""}
             eager
           />
           <div className="absolute inset-0 bg-gradient-to-b from-charcoal/80 via-charcoal/60 to-charcoal" />
@@ -66,25 +73,19 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               <div className="space-y-8">
                 <div>
                   <span className="font-mono text-xs uppercase tracking-[0.2em] text-gold">
-                    01 — Les Débuts
+                    {copy.chapters[0].title}
                   </span>
                   <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] font-bold text-ink mt-6 leading-[1.0]">
-                    Un voyage au Texas,
+                    {copy.chapters[0].heading[0]}
                     <br />
-                    <span className="text-gold">une envie de partage</span>
+                    <span className="text-gold">{copy.chapters[0].heading[1]}</span>
                   </h2>
                 </div>
-                <p className="text-smoke text-lg leading-relaxed">
-                  Tout commence par un voyage. Un voyage au cœur du Texas, où
-                  le barbecue est bien plus qu'une cuisine : c'est une culture,
-                  un art de vivre, un moment de partage.
-                </p>
-                <p className="text-smoke text-lg leading-relaxed">
-                  De retour en France, une évidence s'impose : cette tradition
-                  n'existe pas à Lyon. Une envie naît. Celle de faire
-                  découvrir ces saveurs fumées, ces cuissons lentes, ces sauces
-                  maison qui font la renommée du BBQ texan.
-                </p>
+                {copy.chapters[0].paragraphs.map((paragraph, i) => (
+                  <p key={i} className="text-smoke text-lg leading-relaxed">
+                    {paragraph}
+                  </p>
+                ))}
               </div>
             </Reveal>
 
@@ -92,7 +93,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               <div className="relative">
                 <div className="aspect-[4/3] rounded-card overflow-hidden bg-coal shadow-2xl shadow-ink/10">
                   <img
-                    src="/images/histoire.jpg"
+                    src={mediaUrl(visuals.histoire?.src || "/images/histoire.jpg")}
                     alt="Planches fumées servies chez Texas GrillZ"
                     className="w-full h-full object-cover"
                     loading="lazy"
@@ -109,7 +110,9 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               <div className="relative">
                 <div className="aspect-[4/3] rounded-card overflow-hidden bg-coal shadow-2xl shadow-ink/10">
                   <img
-                    src="/images/locations/lyon-3.jpg"
+                    src={mediaUrl(
+                      visuals["histoire-evolution"]?.src || "/images/locations/lyon-3.jpg"
+                    )}
                     alt="Salle de Texas GrillZ en service"
                     className="w-full h-full object-cover"
                     loading="lazy"
@@ -123,25 +126,19 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               <div className="space-y-8">
                 <div>
                   <span className="font-mono text-xs uppercase tracking-[0.2em] text-gold">
-                    02 — L'Évolution
+                    {copy.chapters[1].title}
                   </span>
                   <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] font-bold text-ink mt-6 leading-[1.0]">
-                    Trois sites,
+                    {copy.chapters[1].heading[0]}
                     <br />
-                    <span className="text-gold">une même exigence</span>
+                    <span className="text-gold">{copy.chapters[1].heading[1]}</span>
                   </h2>
                 </div>
-                <p className="text-smoke text-lg leading-relaxed">
-                  En 2020, Texas GrillZ ouvre son deuxième site à Lyon 7ème.
-                  En 2023, c'est à Villeurbanne que la famille s'agrandit.
-                  Trois adresses, une même exigence : la qualité des produits,
-                  le respect des cuissons, et l'accueil chaleureux.
-                </p>
-                <p className="text-smoke text-lg leading-relaxed">
-                  Aujourd'hui, c'est une équipe de passionnés qui perpétue la
-                  tradition. Chaque matin, le bois de hêtre est allumé. Chaque
-                  soir, les viandes sont fumées pour le lendemain.
-                </p>
+                {copy.chapters[1].paragraphs.map((paragraph, i) => (
+                  <p key={i} className="text-smoke text-lg leading-relaxed">
+                    {paragraph}
+                  </p>
+                ))}
               </div>
             </Reveal>
           </div>
@@ -157,8 +154,8 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               <div className="relative">
                 <div className="aspect-[3/4] max-w-md mx-auto rounded-card overflow-hidden bg-coal shadow-2xl shadow-charcoal/50">
                   <img
-                    src="/logo.jpg"
-                    alt="Fondateur Texas GrillZ"
+                    src={mediaUrl(portrait)}
+                    alt="Portrait du fondateur Texas GrillZ"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -182,11 +179,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
                 </h2>
                 <blockquote className="border-l-2 border-gold pl-6 py-2">
                   <p className="text-cream/80 text-xl md:text-2xl leading-relaxed italic">
-                    "Le barbecue, c'est le temps. Le temps de fumer, le temps
-                    de mijoter, le temps de partager. Chaque pièce de viande
-                    qui sort de notre cuisine porte en elle cette philosophie.
-                    Nous ne nous pressons jamais, car c'est le temps qui fait
-                    la différence."
+                    {copy.quote}
                   </p>
                 </blockquote>
                 <div className="flex items-center gap-4 pt-4">
@@ -196,8 +189,8 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
                     </span>
                   </div>
                   <div>
-                    <p className="text-cream font-semibold text-lg">Texas GrillZ</p>
-                    <p className="text-cream/50 text-sm">Fondateur & Chef</p>
+                    <p className="text-cream font-semibold text-lg">{copy.signature.name}</p>
+                    <p className="text-cream/50 text-sm">{copy.signature.role}</p>
                   </div>
                 </div>
                 <div className="pt-6">

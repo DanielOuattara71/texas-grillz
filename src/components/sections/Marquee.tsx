@@ -1,16 +1,8 @@
 import { type CSSProperties } from "react";
+import { useContent } from "../../content/store";
 import { cn } from "../../utils/cn";
 
-const items = [
-  "Croûte de poivre",
-  "Laque miel-bourbon",
-  "Cheddar affiné",
-  "Cornbread tiède",
-  "Fumé 12 h",
-  "Lyon 3ᵉ",
-];
-
-/** Seconde rangée : mots en contour rouge, sens inverse (esprit sérigraphie). */
+/** Ruban doré : les mots viennent du contenu, modifiables depuis l'admin. */
 const outlineItems = [
   "Juteux",
   "Fondant",
@@ -27,6 +19,8 @@ interface MarqueeProps {
 
 export function Marquee({ variant = "gold" }: MarqueeProps) {
   const caution = variant === "caution";
+
+  const { texts } = useContent();
 
   return (
     <div data-marquee className="relative z-[2] overflow-hidden py-4 -my-2">
@@ -52,7 +46,7 @@ export function Marquee({ variant = "gold" }: MarqueeProps) {
         <div className="marquee-track animate-marquee">
           {[0, 1].map((copy) => (
             <div key={copy} className="flex items-center" aria-hidden={copy === 1}>
-              {items.map((item) => (
+              {texts.marquee.map((item) => (
                 <span
                   key={item}
                   className="flex items-center font-display text-lg font-semibold uppercase tracking-[0.12em] text-coal"

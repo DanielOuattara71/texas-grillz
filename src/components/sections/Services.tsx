@@ -3,7 +3,8 @@ import { Container } from "../ui/Container";
 import { SectionHeading } from "../ui/SectionHeading";
 import { Reveal } from "../ui/Reveal";
 import { Numeral } from "../ui/Numeral";
-import { services } from "../../data/services";
+import { useContent } from "../../content/store";
+import { type Service } from "../../data/services";
 import { cn } from "../../utils/cn";
 
 /** Écart vertical entre deux cartes empilées (bande visible de la carte du dessous), en rem. */
@@ -13,7 +14,7 @@ function ServiceCard({
   service,
   index,
 }: {
-  service: (typeof services)[number];
+  service: Service;
   index: number;
 }) {
   const dark = Boolean(service.highlighted);
@@ -74,15 +75,19 @@ function ServiceCard({
 }
 
 export function Services() {
+  const { services, texts } = useContent();
+
+  if (services.length === 0) return null;
+
   return (
     <section id="services" className="section-stack bg-cream pt-12 pb-28 md:pt-16 md:pb-36">
       <Container>
         <SectionHeading
-          number="03"
-          label="Ce qu'on sert"
-          title="Quatre"
-          accent="Signatures"
-          subtitle="Du fumé lent au service privatisé : quatre façons de vivre Texas GrillZ."
+          number={texts.services.number}
+          label={texts.services.label}
+          title={texts.services.title}
+          accent={texts.services.accent}
+          subtitle={texts.services.subtitle}
           align="left"
         />
 

@@ -5,6 +5,8 @@ import { Reveal } from "../ui/Reveal";
 import { Button } from "../ui/Button";
 import { AvailabilityPill } from "../ui/AvailabilityPill";
 import { useAvailability } from "../../hooks/useAvailability";
+import { isApiConfigured, sendReservation } from "../../admin/config";
+import { useContent } from "../../content/store";
 
 interface FormData {
   name: string;
@@ -24,12 +26,18 @@ const initialData: FormData = {
   message: "",
 };
 
+/** Numéro à composer quand l'API est absente : vient du contenu, jamais en dur. */
+const telHref = (phone: string) => `tel:+${phone.replace(/\s/g, "")}`;
+
 export function ContactForm() {
   const [formData, setFormData] = useState<FormData>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   // Recalculée chaque minute : la pastille reste exacte si l'onglet reste ouvert.
   const availability = useAvailability();
+  // Le numéro affiché suit la source de vérité (admin), comme le reste du site.
+  const { phone, texts } = useContent();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -38,10 +46,21 @@ export function ContactForm() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setError(null);
+
+    const result = await sendReservation(formData);
+
     setIsSubmitting(false);
-    setIsSubmitted(true);
-    setFormData(initialData);
+
+    if (result.ok) {
+      setIsSubmitted(true);
+      setFormData(initialData);
+      return;
+    }
+
+    // Pas de message de succes trompeur : le visiteur sait que sa demande
+    // n'est pas arrivee, et il a le telephone sous les yeux.
+    setError(result.error);
   };
 
   if (isSubmitted) {
@@ -76,11 +95,11 @@ export function ContactForm() {
     <section id="contact" className="section-stack bg-charcoal py-24 md:py-36">
       <Container>
         <SectionHeading
-          number="09"
-          label="Réservation"
-          title="Réservez votre"
-          accent="Table"
-          subtitle="Remplissez le formulaire ci-dessous et nous vous confirmerons votre réservation par email."
+          number={texts.contact.number}
+          label={texts.contact.label}
+          title={texts.contact.title}
+          accent={texts.contact.accent}
+          subtitle={texts.contact.subtitle}
           dark
         />
 
@@ -92,6 +111,28 @@ export function ContactForm() {
 
         <Reveal variant="up">
           <form onSubmit={handleSubmit} className="card-surface-dark mx-auto max-w-2xl p-8 md:p-10">
+            {!isApiConfigured && (
+              <p
+                role="status"
+                className="mb-6 rounded-card border border-caution/40 bg-caution/10 px-4 py-3 text-sm text-caution"
+              >
+                {texts.contact.offlineNotice} Appelez-nous au{" "}
+                <a href={telHref(phone)} className="underline underline-offset-2">
+                  {phone}
+                </a>{" "}
+                et nous noterons votre table.
+              </p>
+            )}
+
+            {error && (
+              <p
+                role="alert"
+                className="mb-6 rounded-card border border-signal-bright/40 bg-signal-bright/10 px-4 py-3 text-sm text-signal-bright"
+              >
+                {error}
+              </p>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="name" className="block text-smoke text-sm mb-2">

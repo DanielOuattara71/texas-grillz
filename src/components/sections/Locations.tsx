@@ -4,7 +4,7 @@ import { SectionHeading } from "../ui/SectionHeading";
 import { Numeral } from "../ui/Numeral";
 import { AvailabilityPill } from "../ui/AvailabilityPill";
 import { FoodMedia } from "../ui/FoodMedia";
-import { locations } from "../../data/locations";
+import { useContent } from "../../content/store";
 import { standardSchedule } from "../../data/hours";
 import {
   formatCompactHours,
@@ -17,16 +17,19 @@ import { Magnetic } from "../ui/Magnetic";
 const STACK_STEP = 3.5;
 
 export function Locations() {
+  const { locations, locationHours, texts } = useContent();
+
+  if (locations.length === 0) return null;
   return (
     <section id="lieux" className="section-stack bg-cream pb-28 md:pb-36">
       <Container className="pt-24 md:pt-36">
         <SectionHeading
-          number="05"
-          label="Nos Lieux"
-          title="Nos sites"
-          accent="en Métropole"
+          number={texts.locations.number}
+          label={texts.locations.label}
+          title={texts.locations.title}
+          accent={texts.locations.accent}
           count={`${locations.length} adresses`}
-          subtitle="Trois tables ouvertes, une quatrième en cours d'installation. Trouvez le Texas GrillZ le plus proche de chez vous."
+          subtitle={`${locations.filter((l) => l.status !== "bientot").length} tables ouvertes, une quatrième en cours d'installation. ${texts.locations.subtitle}`}
         />
 
         <div className="card-stack mt-12 md:mt-16">
@@ -75,7 +78,9 @@ export function Locations() {
                       ) : (
                         <AvailabilityPill
                           {...getAvailability(
-                            location.schedule ?? standardSchedule
+                            locationHours[location.id] ??
+                              location.schedule ??
+                              standardSchedule
                           )}
                         />
                       )}
@@ -93,7 +98,9 @@ export function Locations() {
                         <span className="text-gold">🕐</span>
                         {location.hours ??
                           formatCompactHours(
-                            location.schedule ?? standardSchedule
+                            locationHours[location.id] ??
+                              location.schedule ??
+                              standardSchedule
                           )}
                       </p>
                       <p className="flex items-start gap-3 text-sm text-cream/70">

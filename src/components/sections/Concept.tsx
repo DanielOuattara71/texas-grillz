@@ -4,41 +4,20 @@ import { SectionHeading } from "../ui/SectionHeading";
 import { Reveal } from "../ui/Reveal";
 import { Numeral } from "../ui/Numeral";
 import { FoodMedia } from "../ui/FoodMedia";
+import { useContent } from "../../content/store";
+import { photoSlot } from "../../utils/photoSlot";
 import { cn } from "../../utils/cn";
-
-/**
- * Chapitres « notre histoire » : le geste, la matière, la table.
- * Rien d'inventé : les chiffres repris sont ceux du bandeau de preuve.
- */
-const chapters = [
-  {
-    number: "01",
-    title: "Le feu",
-    text: "Le bois de hêtre entre dans le smoker avant le jour. Douze heures de fumée, une chaleur constante, aucun raccourci.",
-  },
-  {
-    number: "02",
-    title: "La viande",
-    text: "Quatre coupes chaque matin — brisket, ribs, pulled pork, poulet fermier. Jamais réchauffées, jamais en attente.",
-  },
-  {
-    number: "03",
-    title: "L'ardoise",
-    text: "Coleslaw coupée le matin, mac & cheese gratiné à la commande, cornbread tiédi au dernier moment.",
-  },
-  {
-    number: "04",
-    title: "La table",
-    text: "Les sauces au centre, les planches qui circulent, et le temps qu'il faut pour tout finir proprement.",
-  },
-];
-
-const chips = ["12 h de fumage", "4 coupes par matin", "Bois de hêtre", "Lyon 3ᵉ, depuis 2017"];
 
 /** Reprise de la boucle du Hero : même fichier, déjà en cache. */
 const fireReel = "/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4";
 
 export function Concept() {
+  // Visuel du smoker et textes sont modifiables depuis l'admin. Sans photo, la
+  // boucle video joue sur desktop et l'assiette dessinee prend le relais.
+  const { visuals, texts } = useContent();
+  const conceptVisual = visuals.concept;
+  const copy = texts.concept;
+
   return (
     <section
       id="concept"
@@ -53,11 +32,11 @@ export function Concept() {
       />
       <Container>
         <SectionHeading
-          number="02"
-          label="Notre histoire"
-          title="Fumé,"
-          accent="jamais pressé"
-          subtitle="Depuis 2017 à Lyon 3ᵉ, la même routine : allumer le feu à l'aube, laisser la fumée travailler, ouvrir le smoker quand la croûte est prise. C'est long, c'est le goût."
+          number={copy.number}
+          label={copy.label}
+          title={copy.title}
+          accent={copy.accent}
+          subtitle={copy.subtitle}
           align="left"
         />
 
@@ -70,24 +49,24 @@ export function Concept() {
                   label="Le smoker"
                   alt="Viandes en train de fumer au-dessus des braises"
                   video={fireReel}
-                  photo="/images/concept.jpg"
+                  photo={conceptVisual?.src ? photoSlot(conceptVisual.src) : ""}
                   eager
                 />
                 <span className="stamp-ink absolute bottom-4 right-4 -rotate-3 border-cream/70 bg-charcoal/65 px-3 py-1 text-[11px] leading-none text-cream">
-                  Smoker · 5 h 30
+                  {copy.stamp}
                 </span>
               </div>
 
               <figcaption className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-                <span className="eyebrow">Ce que vous voyez, vous le mangez</span>
+                <span className="eyebrow">{copy.frameCaption}</span>
                 <span className="h-px flex-1 bg-line" aria-hidden="true" />
                 <span className="font-display text-[11px] uppercase tracking-[0.14em] text-muted">
-                  Bois de hêtre · aucune précipitation
+                  {copy.frameNote}
                 </span>
               </figcaption>
 
               <div className="mt-6 flex flex-wrap gap-2">
-                {chips.map((chip, i) => (
+                {copy.chips.map((chip, i) => (
                   <span
                     key={chip}
                     className={cn(
@@ -108,7 +87,7 @@ export function Concept() {
           {/* Les quatre chapitres, posés comme des cartouches d'affiche */}
           <Reveal variant="right" className="lg:col-span-5">
             <div className="card-surface overflow-hidden">
-              {chapters.map((chapter, i) => (
+              {copy.chapters.map((chapter, i) => (
                 <div
                   key={chapter.title}
                   className={cn(
@@ -116,7 +95,7 @@ export function Concept() {
                     i > 0 && "border-t border-line"
                   )}
                 >
-                  <Numeral value={chapter.number} className="pt-1" />
+                  <Numeral value={`0${i + 1}`} className="pt-1" />
                   <div className="min-w-0">
                     <h3 className="display-title text-[1.25rem] tracking-[0.02em] text-ink transition-transform duration-[450ms] ease-[var(--ease-out-expo)] group-hover:translate-x-1">
                       {chapter.title}
@@ -132,10 +111,10 @@ export function Concept() {
             <Reveal variant="up" delay={140}>
               <blockquote className="card-surface-dark mt-5 px-7 py-7">
                 <p className="font-serif text-[19px] italic leading-relaxed text-cream">
-                  « On ne presse rien : c'est le temps qui fait le goût. »
+                  {copy.quote}
                 </p>
                 <footer className="mt-4 font-display text-[11px] uppercase tracking-[0.18em] text-gold">
-                  Texas GrillZ — fondateur &amp; chef
+                  {copy.quoteAuthor}
                 </footer>
               </blockquote>
             </Reveal>

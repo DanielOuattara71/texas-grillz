@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { mediaUrl } from "../../utils/photoSlot";
 import { cn } from "../../utils/cn";
 
 /**
@@ -25,6 +26,9 @@ function usePhotoState(photo?: string): PhotoState | "unknown" {
     if (!photo) return;
 
     let alive = true;
+    // La sonde vise l'adresse reellement affichee : une photo `/uploads/…`
+    // n'existe que sur l'API, tester le chemin brut la declarerait absente et le
+    // site retomberait a tort sur l'assiette dessinee.
     const probe = new Image();
     probe.onload = () => {
       if (alive) setStates((current) => ({ ...current, [photo]: "ready" }));
@@ -32,7 +36,7 @@ function usePhotoState(photo?: string): PhotoState | "unknown" {
     probe.onerror = () => {
       if (alive) setStates((current) => ({ ...current, [photo]: "missing" }));
     };
-    probe.src = photo;
+    probe.src = mediaUrl(photo);
 
     return () => {
       alive = false;
@@ -110,7 +114,7 @@ export function FoodMedia({
   if (video && richVideo) {
     return (
       <video
-        src={video}
+        src={mediaUrl(video)}
         muted
         loop
         autoPlay
@@ -125,7 +129,7 @@ export function FoodMedia({
   if (photo && photoState === "ready") {
     return (
       <img
-        src={photo}
+        src={mediaUrl(photo)}
         alt={alt}
         loading={eager ? "eager" : "lazy"}
         decoding="async"

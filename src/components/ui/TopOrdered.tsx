@@ -55,9 +55,17 @@ function RankRow({
  * Classement des plats les plus commandés : chiffres réels (données métier),
  * barres de volume animées à l'entrée dans le viewport.
  */
-export function TopOrdered({ className }: { className?: string }) {
-  const top = topOrdered(5);
+export function TopOrdered({
+  items,
+  className,
+}: {
+  items?: MenuItem[];
+  className?: string;
+}) {
+  const top = topOrdered(5, items);
   const max = top.length > 0 ? top[0].orders : 1;
+
+  if (top.length === 0) return null;
 
   return (
     <Reveal

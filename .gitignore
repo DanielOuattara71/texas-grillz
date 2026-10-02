@@ -41,6 +41,26 @@ WhatsApp Image*.jpeg
 WhatsApp Unknown*.zip
 WhatsApp *.jpeg
 
+# ── Base de données locale (jamais versionnée) ─────────────────────────────
+# Ancré sur server/ : sans le `/`, ce motif ignorait aussi `src/data/`, qui
+# contient les données livrées du site (carte, textes, visuels). Un clone
+# frais n'aurait alors pas compilé.
+/server/data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# ── Images déposées par l'admin (jamais versionnées) ───────────────────────
+server/media/
+/uploads/
+
+# ── Secrets ───────────────────────────────────────────────────────────────
+# ADMIN_PASSWORD, DATABASE_PATH, SESSION… : uniquement dans l'environnement
+# de l'hébergeur, jamais dans un fichier du dépôt.
+.env
+.env.*
+!.env.example
+
 # ── Vidéos : trop lourdes pour Git (66 Mo) ──────────────────────────────────
 # Les boucles de la galerie et du hero sont versionnées à part (stockage objet
 # ou Git LFS) puis déposées dans public/videos/. Voir public/videos/README.md :

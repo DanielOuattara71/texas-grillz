@@ -1,0 +1,12 @@
+# Railway et Render lisent ce fichier pour le deploiement. Le contexte doit
+# être la racine du depot ; la source est alors le dossier server/.
+# Railway : 자동으로 détecté. Render : "Root Directory = server".
+node_modules
+data
+test
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+.env
+Dockerfile
+.dockerignore
