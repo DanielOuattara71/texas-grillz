@@ -16,7 +16,7 @@ const byId = (id: string): MenuItem => {
 
 /** Boucle de braise utilisée par la tuile vedette (5 Mo, desktop uniquement). */
 export const smokyReel =
-  "/videos/Barbecue_grilling_meat_over_coals_20260927120421.mp4";
+  "/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4";
 
 export interface Craving {
   id: string;

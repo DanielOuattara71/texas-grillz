@@ -26,7 +26,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
           <FoodMedia
             label="Braises et fumée"
             alt="Viandes en train de fumer au-dessus des braises"
-            video="/videos/Barbecue_grilling_meat_over_coals_20260927120421.mp4"
+            video="/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4"
             photo={visuals.hero?.src || ""}
             eager
           />

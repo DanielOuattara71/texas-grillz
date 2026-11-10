@@ -31,7 +31,7 @@ const VIDEOS_DELIVERED = [
   "/videos/Download (7).mp4",
   "/videos/Download (8).mp4",
   "/videos/Download (10).mp4",
-  "/videos/Barbecue_grilling_meat_over_coals_20260927120421.mp4",
+  "/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4",
   "/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4",
 ];
 
