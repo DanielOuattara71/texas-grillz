@@ -1,3 +1,4 @@
+import { asset } from "../utils/asset";
 /**
  * Emplacements visuels fixes du site, hors plats et adresses.
  *
@@ -17,7 +18,7 @@ export interface Visual {
   label: string;
   /** "image" : photo. "video" : boucle (galerie uniquement). */
   type: "image" | "video";
-  /** URL du visuel : `/uploads/…`, `/images/…` ou `https://…`. */
+  /** URL du visuel : `/uploads/…`, asset(`images/…`) ou `https://…`. */
   src: string;
   /** Texte alternatif (accessibilité) : décrit la photo, obligatoire. */
   alt: string;
@@ -34,7 +35,7 @@ export const fixedVisuals: Visual[] = [
     id: "logo",
     label: "Logo (barre de navigation, pied de page, écran de chargement)",
     type: "image",
-    src: "/logo.jpg",
+    src: asset("logo.jpg"),
     alt: "Logo Texas GrillZ",
   },
   {
@@ -57,21 +58,21 @@ export const fixedVisuals: Visual[] = [
     id: "histoire",
     label: "Page Histoire, premier chapitre",
     type: "image",
-    src: "/images/histoire.jpg",
+    src: asset("images/histoire.jpg"),
     alt: "Planches fumées servies chez Texas GrillZ",
   },
   {
     id: "histoire-evolution",
     label: "Page Histoire, chapitre « L'évolution »",
     type: "image",
-    src: "/images/locations/zone-4.jpg",
+    src: asset("images/locations/zone-4.jpg"),
     alt: "Espace service de Texas GrillZ à Marcory Zone 4, Abidjan",
   },
   {
     id: "fondateur",
     label: "Page Histoire, le fondateur",
     type: "image",
-    src: "/logo.jpg",
+    src: asset("logo.jpg"),
     alt: "Portrait du fondateur Texas GrillZ",
   },
 ];
@@ -82,7 +83,7 @@ export const galleryVisuals: Visual[] = [
     id: "g1",
     label: "Galerie 1",
     type: "image",
-    src: "/images/gallery/1.jpg",
+    src: asset("images/gallery/1.jpg"),
     alt: "Grande planche de grillades gravée Texas Grillz",
     ratio: "row-span-2",
   },
@@ -90,42 +91,42 @@ export const galleryVisuals: Visual[] = [
     id: "g2",
     label: "Galerie 2",
     type: "image",
-    src: "/images/gallery/2.jpg",
+    src: asset("images/gallery/2.jpg"),
     alt: "Viandes fumées, frites et crudités sur planche",
   },
   {
     id: "g3",
     label: "Galerie 3",
     type: "image",
-    src: "/images/gallery/3.jpg",
+    src: asset("images/gallery/3.jpg"),
     alt: "Planche à partager : riz, plantain et brochettes",
   },
   {
     id: "g4",
     label: "Galerie 4",
     type: "image",
-    src: "/images/gallery/4.jpg",
+    src: asset("images/gallery/4.jpg"),
     alt: "Brochettes de gambas grillées",
   },
   {
     id: "g5",
     label: "Galerie 5",
     type: "image",
-    src: "/images/gallery/5.jpg",
+    src: asset("images/gallery/5.jpg"),
     alt: "Assortiment de brochettes, poulet et frites",
   },
   {
     id: "g6",
     label: "Galerie 6",
     type: "image",
-    src: "/images/gallery/6.jpg",
+    src: asset("images/gallery/6.jpg"),
     alt: "Planche qui sort de la cuisine",
   },
   {
     id: "g7",
     label: "Galerie 7",
     type: "image",
-    src: "/images/gallery/7.jpg",
+    src: asset("images/gallery/7.jpg"),
     alt: "Purée maison en bol, crudités et sauce",
   },
 ];

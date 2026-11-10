@@ -3,7 +3,7 @@
  *
  * Un champ image doit pouvoir tirer sa valeur de trois endroits :
  *   - la bibliotheque deposee depuis l'onglet « Medias » (`/uploads/…`) ;
- *   - les photos livrees avec le depot (`/images/…`), pour reaffecter un
+ *   - les photos livrees avec le depot (asset(`images/…`)), pour reaffecter un
  *     tirage existant ;
  *   - un envoi direct depuis cet ecran (le fichier part vers l'API et le champ
  *     prend immediatement la nouvelle adresse).
@@ -17,6 +17,7 @@ import { SessionContext } from "./SessionContext";
 import { API_BASE } from "./config";
 import { ActionButton, Notice, Select } from "./ui";
 import { cn } from "../utils/cn";
+import { asset } from "../utils/asset";
 
 /**
  * Photos livrees avec le depot. Liste figee : le navigateur ne peut pas
@@ -24,22 +25,22 @@ import { cn } from "../utils/cn";
  * par fichier. Elle sert surtout a reaffecter les tirages existants.
  */
 const REPO_IMAGES = [
-  "/images/products/ribs-o-ribs.jpg",
-  "/images/products/steak-filet-boeuf.jpg",
-  "/images/products/poulet-texan-entier.jpg",
-  "/images/gallery/1.jpg",
-  "/images/gallery/2.jpg",
-  "/images/gallery/3.jpg",
-  "/images/gallery/4.jpg",
-  "/images/gallery/5.jpg",
-  "/images/gallery/6.jpg",
-  "/images/gallery/7.jpg",
-  "/images/locations/zone-4.jpg",
-  "/images/locations/riviera-jardin.jpg",
-  "/images/locations/deux-plateaux-latrille.jpg",
-  "/images/locations/yopougon-maroc.jpg",
-  "/images/locations/cocody-cite-des-arts.jpg",
-  "/images/histoire.jpg",
+  asset("images/products/ribs-o-ribs.jpg"),
+  asset("images/products/steak-filet-boeuf.jpg"),
+  asset("images/products/poulet-texan-entier.jpg"),
+  asset("images/gallery/1.jpg"),
+  asset("images/gallery/2.jpg"),
+  asset("images/gallery/3.jpg"),
+  asset("images/gallery/4.jpg"),
+  asset("images/gallery/5.jpg"),
+  asset("images/gallery/6.jpg"),
+  asset("images/gallery/7.jpg"),
+  asset("images/locations/zone-4.jpg"),
+  asset("images/locations/riviera-jardin.jpg"),
+  asset("images/locations/deux-plateaux-latrille.jpg"),
+  asset("images/locations/yopougon-maroc.jpg"),
+  asset("images/locations/cocody-cite-des-arts.jpg"),
+  asset("images/histoire.jpg"),
 ];
 
 const shortName = (url: string) => url.split("/").pop() ?? url;

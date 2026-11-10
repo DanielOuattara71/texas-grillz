@@ -11,6 +11,7 @@ import { useSession } from "./SessionContext";
 import { isApiConfigured } from "./config";
 import { ApiError } from "./api";
 import { ActionButton, Field, Notice, TextInput } from "./ui";
+import { asset } from "../utils/asset";
 
 export function LoginScreen() {
   const { login } = useSession();
@@ -43,7 +44,7 @@ export function LoginScreen() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <img
-            src="/logo.jpg"
+            src={asset("logo.jpg")}
             alt="Texas GrillZ"
             className="mx-auto mb-5 h-16 w-16 rounded-full object-cover"
           />

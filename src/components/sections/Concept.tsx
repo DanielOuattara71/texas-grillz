@@ -7,9 +7,10 @@ import { FoodMedia } from "../ui/FoodMedia";
 import { useContent } from "../../content/store";
 import { photoSlot } from "../../utils/photoSlot";
 import { cn } from "../../utils/cn";
+import { asset } from "../../utils/asset";
 
 /** Reprise de la boucle du Hero : même fichier, déjà en cache. */
-const fireReel = "/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4";
+const fireReel = asset("videos/Animer_image_barbecue_et_fumée_20260927120505.mp4");
 
 export function Concept() {
   // Visuel du smoker et textes sont modifiables depuis l'admin. Sans photo, la

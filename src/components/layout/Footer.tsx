@@ -2,6 +2,7 @@ import { useContent, useHourLines } from "../../content/store";
 import { mediaUrl } from "../../utils/photoSlot";
 import { telHref } from "../../utils/phone";
 import { Container } from "../ui/Container";
+import { asset } from "../../utils/asset";
 
 interface FooterProps {
   onNavigate?: (page: string) => void;
@@ -18,7 +19,7 @@ export function Footer({ onNavigate }: FooterProps) {
       <Container className="relative pb-28 pt-16 md:pb-24 md:pt-24">
         <div className="flex flex-col items-center text-center mb-16">
           <img
-            src={mediaUrl(visuals.logo?.src || "/logo.jpg")}
+            src={mediaUrl(visuals.logo?.src || asset("logo.jpg"))}
             alt="Texas GrillZ"
             className="w-56 h-56 md:w-80 md:h-80 rounded-full object-cover shadow-2xl shadow-gold/25 mb-8"
           />

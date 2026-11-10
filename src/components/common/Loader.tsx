@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { cn } from "../../utils/cn";
+import { asset } from "../../utils/asset";
 
 interface LoaderProps {
   onComplete: () => void;
@@ -40,7 +41,7 @@ export function Loader({ onComplete }: LoaderProps) {
     >
       <div className="relative">
         <img
-          src="/logo.jpg"
+          src={asset("logo.jpg")}
           alt="Texas GrillZ"
           className="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover animate-pulse"
         />

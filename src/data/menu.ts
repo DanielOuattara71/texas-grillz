@@ -1,3 +1,4 @@
+import { asset } from "../utils/asset";
 /**
  * Carte de Texas GrillZ, Abidjan.
  *
@@ -48,7 +49,7 @@ const dish = (
   description,
   price,
   category,
-  image: `/images/products/${id}.jpg`,
+  image: asset(`images/products/${id}.jpg`),
   ...extra,
 });
 

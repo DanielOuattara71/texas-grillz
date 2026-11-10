@@ -28,6 +28,7 @@ import { isPrivileged, needsLocationBlocking, resolveLocationId } from "./locati
 import { allowedTabs, TAB_META, type TabId } from "./permissions";
 import { cn } from "../utils/cn";
 import { useContent } from "../content/store";
+import { asset } from "../utils/asset";
 
 const ROLE_LABEL: Record<string, string> = {
   admin: "Admin",
@@ -189,7 +190,7 @@ function AdminShell() {
     <div className="min-h-screen bg-charcoal text-cream">
       <header className="border-b border-cream/10 bg-coal">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-5 py-4">
-          <img src="/logo.jpg" alt="" className="h-9 w-9 rounded-full object-cover" />
+          <img src={asset("logo.jpg")} alt="" className="h-9 w-9 rounded-full object-cover" />
           <div className="mr-auto">
             <p className="font-display text-sm text-cream">Administration</p>
             <p className="text-xs text-smoke">

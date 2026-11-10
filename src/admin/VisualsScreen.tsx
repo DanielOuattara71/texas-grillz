@@ -25,14 +25,15 @@ import { fixedVisuals } from "../data/visuals";
 import type { Visual } from "../data/visuals";
 import { mediaUrl } from "../utils/photoSlot";
 import { cn } from "../utils/cn";
+import { asset } from "../utils/asset";
 
 const VIDEOS_DELIVERED = [
-  "/videos/Download (6).mp4",
-  "/videos/Download (7).mp4",
-  "/videos/Download (8).mp4",
-  "/videos/Download (10).mp4",
-  "/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4",
-  "/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4",
+  asset("videos/Download (6).mp4"),
+  asset("videos/Download (7).mp4"),
+  asset("videos/Download (8).mp4"),
+  asset("videos/Download (10).mp4"),
+  asset("videos/Animer_image_barbecue_et_fumée_20260927120505.mp4"),
+  asset("videos/Animer_image_barbecue_et_fumée_20260927120505.mp4"),
 ];
 
 /** Sections publiques référencées (id visuel → section + où c'est affiché). */

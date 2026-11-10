@@ -6,6 +6,7 @@ import { FoodMedia } from "../ui/FoodMedia";
 import { Navbar } from "../layout/Navbar";
 import { useContent } from "../../content/store";
 import { mediaUrl } from "../../utils/photoSlot";
+import { asset } from "../../utils/asset";
 
 interface HistoryPageProps {
   onBack: () => void;
@@ -14,7 +15,7 @@ interface HistoryPageProps {
 export function HistoryPage({ onBack }: HistoryPageProps) {
   // Les trois photos de la page sont modifiables depuis l'admin.
   const { visuals, historyTexts: copy } = useContent();
-  const logo = visuals.logo?.src ?? "/logo.jpg";
+  const logo = visuals.logo?.src ?? asset("logo.jpg");
   const portrait = visuals.fondateur?.src || logo;
 
   return (
@@ -26,7 +27,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
           <FoodMedia
             label="Braises et fumée"
             alt="Viandes en train de fumer au-dessus des braises"
-            video="/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4"
+            video={asset("videos/Animer_image_barbecue_et_fumée_20260927120505.mp4")}
             photo={visuals.hero?.src || ""}
             eager
           />
@@ -93,7 +94,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               <div className="relative">
                 <div className="aspect-[4/3] rounded-card overflow-hidden bg-coal shadow-2xl shadow-ink/10">
                   <img
-                    src={mediaUrl(visuals.histoire?.src || "/images/histoire.jpg")}
+                    src={mediaUrl(visuals.histoire?.src || asset("images/histoire.jpg"))}
                     alt="Planches fumées servies chez Texas GrillZ"
                     className="w-full h-full object-cover"
                     loading="lazy"
@@ -111,7 +112,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
                 <div className="aspect-[4/3] rounded-card overflow-hidden bg-coal shadow-2xl shadow-ink/10">
                   <img
                     src={mediaUrl(
-                      visuals["histoire-evolution"]?.src || "/images/locations/zone-4.jpg"
+                      visuals["histoire-evolution"]?.src || asset("images/locations/zone-4.jpg")
                     )}
                     alt="Espace service de Texas GrillZ à Marcory Zone 4, Abidjan"
                     className="w-full h-full object-cover"

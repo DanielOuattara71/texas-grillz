@@ -1,4 +1,5 @@
 import { standardSchedule, type DayService } from "./hours";
+import { asset } from "../utils/asset";
 
 export interface Location {
   id: string;
@@ -39,7 +40,7 @@ export const locations: Location[] = [
     // TODO(client): confirmer
     phone: "07 77 47 37 37",
     schedule: standardSchedule,
-    image: "/images/locations/zone-4.jpg",
+    image: asset("images/locations/zone-4.jpg"),
     mapsUrl: "https://www.google.com/maps/dir/?api=1&destination=5.3485583%2C-3.9769516",
     services: [
       "Climatisation",
@@ -58,7 +59,7 @@ export const locations: Location[] = [
     address: "Riviera Jardin, Cocody",
     phone: "07 77 59 59 47",
     schedule: standardSchedule,
-    image: "/images/locations/riviera-jardin.jpg",
+    image: asset("images/locations/riviera-jardin.jpg"),
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Texas+GrillZ+Riviera+Jardin+Abidjan",
   },
   {
@@ -69,7 +70,7 @@ export const locations: Location[] = [
     address: "Deux-Plateaux, Boulevard Latrille, Cocody",
     phone: "07 77 59 59 47",
     schedule: standardSchedule,
-    image: "/images/locations/deux-plateaux-latrille.jpg",
+    image: asset("images/locations/deux-plateaux-latrille.jpg"),
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Texas+GrillZ+Deux+Plateaux+Latrille",
   },
   {
@@ -80,7 +81,7 @@ export const locations: Location[] = [
     // TODO(client): confirmer
     phone: "07 77 45 00 00",
     schedule: standardSchedule,
-    image: "/images/locations/yopougon-maroc.jpg",
+    image: asset("images/locations/yopougon-maroc.jpg"),
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Texas+GrillZ+Yopougon+Maroc",
   },
   {
@@ -91,7 +92,7 @@ export const locations: Location[] = [
     address: "Cocody Cité des Arts",
     phone: "07 77 59 59 47",
     schedule: standardSchedule,
-    image: "/images/locations/cocody-cite-des-arts.jpg",
+    image: asset("images/locations/cocody-cite-des-arts.jpg"),
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Texas+GrillZ+Cocody+Cit%C3%A9+des+Arts",
   },
 ];

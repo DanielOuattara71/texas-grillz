@@ -4,6 +4,7 @@ import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { useContent } from "../../content/store";
 import { mediaUrl } from "../../utils/photoSlot";
 import { cn } from "../../utils/cn";
+import { asset } from "../../utils/asset";
 
 interface NavbarProps {
   onNavigate?: (page: string) => void;
@@ -47,7 +48,7 @@ export function Navbar({ onNavigate, homeOnly = false }: NavbarProps) {
             aria-label="Retour à l'accueil"
           >
             <img
-              src={mediaUrl(visuals.logo?.src || "/logo.jpg")}
+              src={mediaUrl(visuals.logo?.src || asset("logo.jpg"))}
               alt="Texas GrillZ"
               className="w-9 h-9 rounded-full object-cover"
             />

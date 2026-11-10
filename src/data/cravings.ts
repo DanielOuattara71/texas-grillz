@@ -1,4 +1,5 @@
 import { menuItems, type MenuItem } from "./menu";
+import { asset } from "../utils/asset";
 
 /**
  * La grille d'« envies » : ce qu'on regarde en premier quand on a faim.
@@ -16,7 +17,7 @@ const byId = (id: string): MenuItem => {
 
 /** Boucle de braise utilisée par la tuile vedette (5 Mo, desktop uniquement). */
 export const smokyReel =
-  "/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4";
+  asset("videos/Animer_image_barbecue_et_fumée_20260927120505.mp4");
 
 export interface Craving {
   id: string;

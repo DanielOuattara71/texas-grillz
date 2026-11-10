@@ -6,17 +6,10 @@
  *   - `/uploads/…`, depose depuis l'espace d'administration et servi par l'API ;
  *   - `https://res.cloudinary.com/…`, images hébergées sur Cloudinary.
  */
-import { API_BASE } from "../admin/config";
+import { asset } from "./asset";
 
-/** Vrai si l'adresse est un media servi par l'API ou Cloudinary. */
-export const isUpload = (src: string): boolean =>
-  src.startsWith("/uploads/") || /^https:\/\/res\.cloudinary\.com\//.test(src);
-
-/** Adresse a mettre dans `src`, quelle que soit la source du visuel. */
-export const mediaUrl = (src: string): string => {
-  if (!src) return "";
-  return isUpload(src) ? `${API_BASE}${src}` : src;
-};
+/** Adresse à mettre dans `src`, quelle que soit la source du visuel. */
+export const mediaUrl = asset;
 
 /**
  * Emplacement photo d'un plat, derive du chemin de son illustration.

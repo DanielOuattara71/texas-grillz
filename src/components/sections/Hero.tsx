@@ -5,6 +5,7 @@ import { Button } from "../ui/Button";
 import { Reveal } from "../ui/Reveal";
 import { Magnetic } from "../ui/Magnetic";
 import { TextReveal } from "../ui/TextReveal";
+import { asset } from "../../utils/asset";
 
 export function Hero() {
   const { visuals, texts } = useContent();
@@ -37,7 +38,7 @@ export function Hero() {
           />
         ) : (
           <video
-            src="/videos/Animer_image_barbecue_et_fumée_20260927120505.mp4"
+            src={asset("videos/Animer_image_barbecue_et_fumée_20260927120505.mp4")}
             autoPlay
             muted
             loop
