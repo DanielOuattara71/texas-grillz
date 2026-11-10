@@ -2,8 +2,8 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  // Chemins relatifs : GitHub Pages sert le site depuis un sous-dossier.
-  base: './',
+  // Chemins absolus vers le sous-dossier GitHub Pages « texas-grillz ».
+  base: '/texas-grillz/',
   plugins: [react()],
   server: {
     host: '0.0.0.0',
