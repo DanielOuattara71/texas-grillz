@@ -17,23 +17,30 @@ const TTL_HOURS = 12;
 
 const q = {
   userByEmail: db.prepare("SELECT * FROM users WHERE email = ?"),
-  userById: db.prepare("SELECT id, email, name FROM users WHERE id = ?"),
+  userById: db.prepare(
+    "SELECT id, email, name, location_id, role, active, must_change_password, created_by, created_at, last_login_at FROM users WHERE id = ?"
+  ),
   userByIdWithHash: db.prepare("SELECT * FROM users WHERE id = ?"),
   insertUser: db.prepare(
-    "INSERT INTO users (email, name, password_hash) VALUES (?, ?, ?)"
+    "INSERT INTO users (email, name, password_hash, location_id, role, active, must_change_password, created_by) VALUES (?, ?, ?, ?, ?, 1, ?, ?)"
   ),
   countUsers: db.prepare("SELECT COUNT(*) AS n FROM users"),
   insertSession: db.prepare(
     "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, datetime('now', ?))"
   ),
   findSession: db.prepare(
-    `SELECT s.token, s.user_id, u.email, u.name
+    `SELECT s.token, s.user_id, u.email, u.name, u.location_id, u.role, u.active, u.must_change_password
        FROM sessions s JOIN users u ON u.id = s.user_id
       WHERE s.token = ? AND s.expires_at > datetime('now')`
   ),
   deleteSession: db.prepare("DELETE FROM sessions WHERE token = ?"),
   deleteUserSessions: db.prepare("DELETE FROM sessions WHERE user_id = ?"),
-  updatePassword: db.prepare("UPDATE users SET password_hash = ? WHERE id = ?"),
+  updatePassword: db.prepare(
+    "UPDATE users SET password_hash = ?, must_change_password = 0 WHERE id = ?"
+  ),
+  touchLogin: db.prepare(
+    "UPDATE users SET last_login_at = datetime('now') WHERE id = ?"
+  ),
 };
 
 /**
@@ -49,8 +56,16 @@ function ensureBootstrapAdmin() {
   const password = process.env.ADMIN_PASSWORD || "";
   if (!email || password.length < 12) return null;
 
-  q.insertUser.run(email, process.env.ADMIN_NAME || "Administrateur", bcrypt.hashSync(password, 12));
-  return { email, fromEnvironment: true };
+  q.insertUser.run(
+    email,
+    process.env.ADMIN_NAME || "Administrateur",
+    bcrypt.hashSync(password, 12),
+    null,
+    "super_admin",
+    0,
+    null
+  );
+  return { email, fromEnvironment: true, role: "super_admin" };
 }
 
 const hashPassword = (plain) => bcrypt.hashSync(plain, 12);
@@ -69,8 +84,18 @@ function authenticate(email, password) {
     bcrypt.compareSync(String(password || ""), "$2b$12$abcdefghijklmnopqrstuv012345678901234567890123456");
     return null;
   }
+  if (user.active === 0) return null;
   if (!verifyPassword(String(password || ""), user.password_hash)) return null;
-  return { id: user.id, email: user.email, name: user.name };
+  q.touchLogin.run(user.id);
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    location_id: user.location_id || null,
+    role: user.role || "admin",
+    active: user.active === undefined || user.active === null ? 1 : Number(user.active),
+    must_change_password: Boolean(Number(user.must_change_password || 0)),
+  };
 }
 
 const createSession = (userId) => {
@@ -109,4 +134,5 @@ module.exports = {
   destroySession,
   changePassword,
   hashPassword,
+  q,
 };

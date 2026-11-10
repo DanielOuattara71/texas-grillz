@@ -25,13 +25,13 @@ export function ProofStrip() {
 
       {/* Tampon d'encre du lieu, posé en biais comme sur l'affiche */}
       <span className="stamp-ink absolute right-6 bottom-5 z-20 hidden -rotate-6 px-3 py-1 text-[13px] leading-none md:inline-block">
-        Lyon 3ᵉ
+        Abidjan
       </span>
 
       <CautionTape rotate={-1.1}>{texts.proof.cautionTape}</CautionTape>
 
       <Container className="relative py-12 md:py-16">
-        <div className="grid grid-cols-2 gap-y-10 md:grid-cols-4 md:gap-y-0">
+        <div className="grid grid-cols-2 gap-y-10 md:grid-cols-2 md:gap-y-0">
           {proofs.map((proof, i) => (
             <div
               key={proof.label}

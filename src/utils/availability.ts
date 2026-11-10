@@ -46,16 +46,48 @@ function nextService(
   return "";
 }
 
+const WEEKDAY_TO_INDEX: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
+/**
+ * Jour et heure à Abidjan, quel que soit le fuseau du navigateur.
+ */
+function abidjanDayAndMinutes(now: Date): { day: number; minutes: number } {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Africa/Abidjan",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(now);
+  let day = 0;
+  let hour = 0;
+  let minute = 0;
+  for (const part of parts) {
+    if (part.type === "weekday") day = WEEKDAY_TO_INDEX[part.value] ?? 0;
+    if (part.type === "hour") hour = Number(part.value) % 24;
+    if (part.type === "minute") minute = Number(part.value);
+  }
+  return { day, minutes: hour * 60 + minute };
+}
+
 /**
  * Statut d'ouverture déduit des horaires réels. Fonction pure (aucun état
  * React) : appelable au rendu, dans une boucle de rendu, ou dans un hook.
+ * L'heure est calculée à Abidjan (`Africa/Abidjan`).
  */
 export function getAvailability(
   schedule: DayService[],
   now: Date = new Date()
 ): Availability {
-  const day = now.getDay();
-  const minutes = now.getHours() * 60 + now.getMinutes();
+  const { day, minutes } = abidjanDayAndMinutes(now);
   const service = schedule[day];
 
   if (service.open && service.close) {
@@ -132,7 +164,7 @@ const closedLast = (a: ServiceGroup, b: ServiceGroup): number =>
 
 const rangeLabel = (service: DayService): string =>
   service.open && service.close
-    ? `${frenchHour(toMinutes(service.open))} — ${frenchHour(toMinutes(service.close))}`
+    ? `${frenchHour(toMinutes(service.open))} à ${frenchHour(toMinutes(service.close))}`
     : "Fermé";
 
 /**
@@ -149,14 +181,14 @@ export function formatHourGroups(
       days:
         group.first === group.last
           ? dayNames[group.first]
-          : `${dayNames[group.first]} — ${dayNames[group.last]}`,
+          : `${dayNames[group.first]}–${dayNames[group.last]}`,
       time: group.text,
     }));
 }
 
 /**
  * Ligne d'horaire compacte pour les cartes d'adresses :
- * "Mar–Jeu 18h30 — 23h00 · Ven–Sam 18h30 — 00h00 · Dim. 12h00 — 15h00 · Lun. fermé".
+ * "Mar–Jeu 18h30 à 23h00 · Ven–Sam 18h30 à 00h00 · Dim. 12h00 à 15h00 · Lun. fermé".
  */
 export function formatCompactHours(schedule: DayService[]): string {
   return groupServices(schedule, rangeLabel)

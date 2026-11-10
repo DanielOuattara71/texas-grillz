@@ -40,8 +40,47 @@ function requireAuth(req, res, next) {
   if (!user) {
     return res.status(401).json({ error: "Connexion requise." });
   }
-  req.user = { id: user.user_id, email: user.email, name: user.name };
+  if (user.active === 0 || user.active === false) {
+    return res.status(401).json({ error: "Compte désactivé." });
+  }
+  req.user = {
+    id: user.user_id,
+    email: user.email,
+    name: user.name,
+    location_id: user.location_id || null,
+    role: user.role || "admin",
+    active: user.active === undefined || user.active === null ? 1 : Number(user.active),
+    must_change_password: Boolean(Number(user.must_change_password || 0)),
+  };
   next();
+}
+
+function locationName(locationId) {
+  if (!locationId) return null;
+  try {
+    const { db } = require("./db");
+    const row = db.prepare("SELECT payload FROM content WHERE key = ?").get("locations");
+    if (!row) return null;
+    const list = JSON.parse(row.payload);
+    if (!Array.isArray(list)) return null;
+    const found = list.find((e) => e && e.id === locationId);
+    return found ? found.name || null : null;
+  } catch {
+    return null;
+  }
+}
+
+function publicUser(user) {
+  return {
+    id: user.id ?? user.user_id,
+    email: user.email,
+    name: user.name,
+    location_id: user.location_id || null,
+    location: user.location_id ? locationName(user.location_id) : null,
+    role: user.role || "admin",
+    active: user.active === undefined || user.active === null ? 1 : Number(user.active),
+    must_change_password: Boolean(Number(user.must_change_password || 0)),
+  };
 }
 
 const router = express.Router();
@@ -79,7 +118,7 @@ router.post("/login", loginLimiter, (req, res) => {
     path: "/",
   });
 
-  res.json({ user: { id: user.id, email: user.email, name: user.name } });
+  res.json({ user: publicUser(user) });
 });
 
 router.post("/logout", (req, res) => {
@@ -92,7 +131,17 @@ router.post("/logout", (req, res) => {
 router.get("/me", (req, res) => {
   const user = userFromToken(req.cookies?.[COOKIE]);
   if (!user) return res.status(401).json({ error: "Non connecte." });
-  res.json({ user: { id: user.user_id, email: user.email, name: user.name } });
+  if (user.active === 0) return res.status(401).json({ error: "Compte désactivé." });
+  const shaped = {
+    id: user.user_id,
+    email: user.email,
+    name: user.name,
+    location_id: user.location_id || null,
+    role: user.role || "admin",
+    active: user.active === undefined ? 1 : Number(user.active),
+    must_change_password: Boolean(Number(user.must_change_password || 0)),
+  };
+  res.json({ user: publicUser(shaped) });
 });
 
 router.post("/password", requireAuth, (req, res) => {

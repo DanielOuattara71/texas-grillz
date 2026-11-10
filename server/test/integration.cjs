@@ -118,13 +118,13 @@ const check = (label, condition, extra = "") => {
   // Ecriture d'un bloc `site` : toutes les clefs doivent etre valides, sinon
   // la validation la refuse (voir server/src/schemas.js).
   const write = await request("PUT", "/api/admin/content/site", {
-    payload: { tagline: "Barbecue au feu de bois" },
+    payload: { tagline: "Grillades et burgers à l'américaine — Abidjan" },
   });
   check("PUT /api/admin/content/site -> 200", write.status === 200, `recu ${write.status}`);
 
   // Un contenu qui ne respecte pas le format est refuse, non enregistre.
   const badFormat = await request("PUT", "/api/admin/content/menu", {
-    payload: [{ id: "brisket", name: "", description: "x", price: -5, category: "viandes", image: "" }],
+    payload: [{ id: "ribs-o-ribs", name: "", description: "x", price: -5, category: "bbq", image: "" }],
   });
   check("PUT menu au format invalide -> 422", badFormat.status === 422, `recu ${badFormat.status}`);
 
@@ -136,17 +136,82 @@ const check = (label, condition, extra = "") => {
   check(
     "GET /api/content reflete l'ecriture",
     afterWrite.status === 200 &&
-      JSON.parse(afterWrite.body).site?.tagline === "Barbecue au feu de bois"
+      JSON.parse(afterWrite.body).site?.tagline === "Grillades et burgers à l'américaine — Abidjan"
   );
 
   // Le contenu refuse n'a pas ete enregistre : le site reste sur son etat.
   const afterRefused = JSON.parse((await request("GET", "/api/content")).body);
   check("Le contenu invalide n'a pas ete enregistre", afterRefused.menu === undefined);
 
+  // Contenu par siege : un bloc ecrit pour un lieu (`zone-4:menu`) est lisible
+  // via `?location=`, et surcharge le contenu global pour ce siege.
+  const writeScoped = await request("PUT", "/api/admin/content/zone-4:menu", {
+    payload: [
+      {
+        id: "ribs-o-ribs",
+        name: "Ribs Ô Ribs",
+        description: "Travers de porc assaisonnés",
+        price: 31000,
+        category: "bbq",
+        image: "",
+      },
+    ],
+  });
+  check("PUT /api/admin/content/zone-4:menu -> 200", writeScoped.status === 200, `recu ${writeScoped.status}`);
+
+  const adminContent = await request("GET", "/api/admin/content");
+  check(
+    "GET /api/admin/content reflete le bloc siege",
+    adminContent.status === 200 && "zone-4:menu" in JSON.parse(adminContent.body)
+  );
+
+  const contentScoped = await request("GET", "/api/content?location=zone-4");
+  const scopedPayload = JSON.parse(contentScoped.body);
+  check(
+    "GET /api/content?location=zone-4 -> 200 et bloc siege lu",
+    contentScoped.status === 200 &&
+      Array.isArray(scopedPayload.menu) &&
+      scopedPayload.menu[0].price === 31000,
+    `prix = ${scopedPayload.menu?.[0]?.price}`
+  );
+
+  const contentOtherLocation = await request("GET", "/api/content?location=villeurbanne");
+  const otherLocationPayload = JSON.parse(contentOtherLocation.body);
+  check(
+    "GET /api/content?location=villeurbanne -> contenu global sans siege",
+    contentOtherLocation.status === 200 && otherLocationPayload.menu === undefined
+  );
+
+  const contentGlobal = await request("GET", "/api/content");
+  const globalPayload = JSON.parse(contentGlobal.body);
+  check(
+    "GET /api/content (sans siege) -> contenu global seul",
+    contentGlobal.status === 200 && globalPayload.menu === undefined
+  );
+
+  const writeHours = await request("PUT", "/api/admin/content/zone-4:hours", {
+    payload: Array.from({ length: 7 }, (_, i) => ({
+      open: i < 5 ? "11:00" : null,
+      close: i < 5 ? "22:00" : null,
+    })),
+  });
+  check("PUT /api/admin/content/zone-4:hours -> 200", writeHours.status === 200, `recu ${writeHours.status}`);
+
+  const contentHours = await request("GET", "/api/content?location=zone-4");
+  const hoursPayload = JSON.parse(contentHours.body);
+  check(
+    "GET /api/content?location=zone-4 rattache les heures du siege",
+    contentHours.status === 200 &&
+      Array.isArray(hoursPayload.locationHours?.["zone-4"]) &&
+      hoursPayload.locationHours["zone-4"].length === 7,
+    `seances = ${JSON.stringify(hoursPayload.locationHours?.["zone-4"] ?? null)}`
+  );
+
   // Reservation publique puis lecture admin.
   const booking = await request("POST", "/api/reservations", {
     name: "Jean",
     email: "jean@exemple.fr",
+    locationId: "zone-4",
     date: "2026-12-25",
     guests: "4",
   });

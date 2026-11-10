@@ -9,32 +9,36 @@ export interface Service {
 
 export const services: Service[] = [
   {
-    id: "brisket",
+    id: "burgers",
     number: "01",
-    title: "Brisket & Viandes Fumées",
-    description: "Poitrine de bœuf fumée 12 heures au bois de hêtre, tendreté incomparable et jus de cuisson réduit.",
+    title: "Burgers",
+    description:
+      "Burger Cheese, Juicy Maxwell, Texas Crunchy et Grand Canyon, en simple ou en double.",
     href: "#menu",
   },
   {
-    id: "ribs",
+    id: "bbq-ribs",
     number: "02",
-    title: "Ribs & Grillades",
-    description: "Travers de porc laqués au miel et au bourbon, cuits lentement pour une chair qui se détache.",
+    title: "BBQ & Ribs",
+    description:
+      "Poulet texan, côtes de porc, steak de filet et Ribs Ô Ribs à la sauce secrète de la maison.",
     href: "#menu",
   },
   {
-    id: "accompagnements",
+    id: "mix-saisonniers",
     number: "03",
-    title: "Accompagnements Maison",
-    description: "Mac & cheese au cheddar affiné, coleslaw frais, cornbread au miel et recettes de la maison.",
+    title: "Mix Grill & Saisonniers",
+    description:
+      "Plateaux à partager et suggestions du moment : surf n' turf, gambas, tagliatelles et souris d'agneau.",
     href: "#menu",
   },
   {
-    id: "evenements",
+    id: "weekend",
     number: "04",
-    title: "Événements & Privatisation",
-    description: "Privatisation, séminaires et réceptions. Une équipe dédiée pour vos moments de partage.",
-    href: "#contact",
+    title: "Week-end Carnivore",
+    description:
+      "Le menu du week-end : poulet entier, travers, burger, frite fromage et steak, servis avec attiéké.",
+    href: "#menu",
     highlighted: true,
   },
 ];

@@ -24,7 +24,7 @@ interface SessionValue {
   logout: () => Promise<void>;
 }
 
-const SessionContext = createContext<SessionValue | null>(null);
+export const SessionContext = createContext<SessionValue | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);

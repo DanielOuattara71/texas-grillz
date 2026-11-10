@@ -1,26 +1,33 @@
 import { standardSchedule } from "./hours";
 import { formatHourGroups } from "../utils/availability";
+import { locations } from "./locations";
 
 export const site = {
   name: "Texas GrillZ",
-  tagline: "Barbecue au feu de bois",
+  tagline: "Grillades et burgers à l'américaine, Abidjan",
   established: 2017,
-  address: "12 Rue de la Villette, 69003 Lyon",
-  phone: "04 78 00 00 00",
-  email: "contact@texasgrill.fr",
+  address: "Rue Lumière, en face du Cours Sévigné, Zone 4 C, Marcory, Abidjan",
+  phone: "07 77 59 59 47",
+  // TODO(client): variants vues en ligne non retenues : 07 07 03 09 09 / 07 03 09 09 09
+  email: "texas.grillz15@gmail.com",
+  // TODO(client): confirmer lequel afficher (texasgrillz@hotmail.com vu sur un annuaire)
   /** Source de vérité des horaires : le statut en direct et l'affichage en découlent. */
   schedule: standardSchedule,
   /** Lignes d'horaire affichées (section Infos, pied de page), générées depuis `schedule`. */
   hours: formatHourGroups(standardSchedule),
   social: {
-    instagram: "https://instagram.com/texasgrill",
-    facebook: "https://facebook.com/texasgrill",
-    tiktok: "https://tiktok.com/@texasgrill",
+    facebook: "https://www.facebook.com/p/Texas-GrillZ-100068946285002/",
+    tiktok: "https://www.tiktok.com/@texasgrillz",
+    // TODO(client): URL Instagram et X inconnues (icônes présentes sur les menus)
   },
-  /** Note et nombre d'avis — à remplacer par les vraies valeurs Google. */
-  rating: { score: 4.9, reviews: 1248, url: "https://google.com/maps" },
+  /**
+   * Note Google officielle, avec son lien.
+   * Volontairement absent : ne jamais afficher de note factice.
+   * À remplacer plus tard par la note Google officielle, avec son lien.
+   */
+  rating: undefined as { score: number; reviews: number; url: string } | undefined,
   /** Coupes tournantes affichées dans le rotateur du bandeau de preuve. */
-  tonight: ["Brisket", "Ribs", "Pulled Pork", "Saumon fumé"],
+  tonight: ["Ribs Ô Ribs", "Poulet texan", "Mix Grill", "Juicy Maxwell"],
 };
 
 /** Chiffres clés du bandeau de preuve (sous le Hero). */
@@ -35,10 +42,8 @@ export interface Proof {
 }
 
 export const proofs: Proof[] = [
-  { value: 12, suffix: " h", label: "de fumage quotidien au bois de hêtre" },
-  { value: 2017, from: 1994, label: "première braise allumée à Lyon 3ᵉ" },
-  { value: 4, label: "coupes fumées chaque matin, jamais réchauffées" },
-  { value: 4.9, decimals: 1, suffix: "/5", label: "note moyenne sur Google" },
+  { value: 2017, from: 2005, label: "Texas GrillZ ouvre ses premières braises" },
+  { value: locations.length, label: "adresses à Abidjan" },
 ];
 
 export const navLinks = [
@@ -47,6 +52,5 @@ export const navLinks = [
   { label: "Carte", href: "#menu" },
   { label: "Nos Lieux", href: "#lieux" },
   { label: "Galerie", href: "#gallery" },
-  { label: "Avis", href: "#avis" },
   { label: "Contact", href: "#contact" },
 ];

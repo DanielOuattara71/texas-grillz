@@ -146,6 +146,7 @@ export function Testimonials() {
   const { testimonials: reviewsList, rating, texts } = useContent();
 
   if (reviewsList.length === 0) return null;
+  if (!rating) return null;
 
   const reviews = rating.reviews.toLocaleString("fr-FR");
   const score = rating.score.toLocaleString("fr-FR");

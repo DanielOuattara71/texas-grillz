@@ -26,11 +26,12 @@ import { testimonials } from "../data/testimonials";
 const MENU_HINTS: Record<string, string> = {
   name: "Titre du plat",
   description: "Description",
-  price: "Prix en euros",
+  price: "Prix en FCFA (entier)",
   category: "Categorie",
-  badge: "Badge",
+  priceFrom: "Prix « à partir de »",
+  locationIds: "Restaurants (restoID, une par ligne, vide = tous)",
+  locationId: "Restaurant (restoID, si un seul)",
   image: "URL de l'image",
-  orders: "Commandes du mois",
 };
 
 export type BlockId =
@@ -44,7 +45,7 @@ export type BlockId =
 const LONG_FIELDS = new Set(["description", "text", "message", "hook", "subtitle", "kicker"]);
 
 /** Champs traites comme des nombres. */
-const NUMBER_FIELDS = new Set(["price", "orders", "value", "rating", "guests", "number", "decimals", "from"]);
+const NUMBER_FIELDS = new Set(["price", "value", "rating", "guests", "number", "decimals", "from"]);
 
 /** Champs traites comme des listes de chaines (tableau de valeurs). */
 const LIST_FIELDS = new Set([
@@ -53,6 +54,7 @@ const LIST_FIELDS = new Set([
   "labels",
   "marquee",
   "cautionTape",
+  "locationIds",
 ]);
 
 type Row = Record<string, unknown>;
@@ -87,7 +89,7 @@ function fieldLabel(key: string, block: BlockId) {
 
 function renderField(key: string, value: unknown, onChange: (next: unknown) => void, block: BlockId) {
   const id = `f-${key}`;
-  if (LIST_FIELDS.has(key) && Array.isArray(value)) {
+  if (LIST_FIELDS.has(key) && (Array.isArray(value) || value == null)) {
     return (
       <div key={key} className="sm:col-span-2">
         <label htmlFor={id} className="mb-1.5 block font-display text-[11px] uppercase tracking-[0.14em] text-gold">
@@ -96,7 +98,7 @@ function renderField(key: string, value: unknown, onChange: (next: unknown) => v
         <TextArea
           id={id}
           rows={3}
-          value={value.join("\n")}
+          value={Array.isArray(value) ? value.join("\n") : ""}
           onChange={(e) => onChange(e.target.value.split("\n").filter(Boolean))}
         />
       </div>
@@ -121,7 +123,18 @@ function renderField(key: string, value: unknown, onChange: (next: unknown) => v
       <label htmlFor={id} className="mb-1.5 block font-display text-[11px] uppercase tracking-[0.14em] text-gold">
         {fieldLabel(key, block)}
       </label>
-      {LONG_FIELDS.has(key) ? (
+      {key === "category" && block === "menu" ? (
+        <Select {...common}>
+          <option value="mix-grill">Mix Grill</option>
+          <option value="saisonniers">Saisonniers</option>
+          <option value="bbq">Viande BBQ</option>
+          <option value="burgers">Burgers</option>
+          <option value="brochettes">Brochettes</option>
+          <option value="garnitures">Garnitures</option>
+          <option value="weekend">Week-end Carnivore</option>
+          <option value="boissons">Boissons</option>
+        </Select>
+      ) : LONG_FIELDS.has(key) ? (
         <TextArea {...common} rows={3} />
       ) : typeof value === "boolean" ? (
         <Select
@@ -155,10 +168,13 @@ export function ContentScreen({
   block,
   title,
   description,
+  locationId = null,
 }: {
   block: BlockId;
   title: string;
   description: string;
+  /** Siege (branche) pour lequel le bloc est edite : `null` = contenu global. */
+  locationId?: string | null;
 }) {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [dirty, setDirty] = useState(false);
@@ -167,11 +183,13 @@ export function ContentScreen({
   const [message, setMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
   const [selected, setSelected] = useState(0);
 
+  const contentKey = locationId ? `${locationId}:${block}` : block;
+
   const load = useCallback(async () => {
     setMessage(null);
     try {
       const data = await api.content();
-      const payload = data[block]?.payload;
+      const payload = data[contentKey]?.payload;
       const list = Array.isArray(payload)
         ? payload
         : isRow(payload)
@@ -196,7 +214,7 @@ export function ContentScreen({
         text: "Backend injoignable : edition desactivee.",
       });
     }
-  }, [block]);
+  }, [block, contentKey]);
 
   useEffect(() => {
     load();
@@ -220,11 +238,78 @@ export function ContentScreen({
     setDirty(true);
   }
 
+  /** Ajoute une ligne vierge (plat, adresse…) à partir du modèle courant. */
+  function addRow() {
+    const model = current ? { ...current } : {};
+    const next: Row = { ...model };
+    if (block === "menu") {
+      next.id = `${String(next.id ?? "plat").replace(/[^a-z0-9-]/gi, "-").toLowerCase()}-copie-${Math.floor(Math.random() * 9000) + 1000}`;
+      next.name = `${String(next.name ?? "Nouveau plat")} (copie)`;
+      next.description = String(next.description ?? "");
+      next.price = Number(next.price ?? 0);
+      next.category = String(next.category ?? "bbq");
+      next.image = String(next.image ?? "");
+    }
+    setRows((list) => [...(list ?? []), next]);
+    setDirty(true);
+  }
+
+  function removeRow() {
+    if (!rows) return;
+    setRows(rows.filter((_, i) => i !== selected));
+    setSelected(Math.max(0, selected - 1));
+    setDirty(true);
+  }
+
+  function duplicateRow() {
+    if (!current) return;
+    const copy: Row = { ...current };
+    if (block === "menu") {
+      copy.id = `${String(copy.id ?? "plat").replace(/[^a-z0-9-]/gi, "-").toLowerCase()}-copie-${Math.floor(Math.random() * 9000) + 1000}`;
+      copy.name = `${String(copy.name ?? "Plat")} (copie)`;
+    }
+    setRows((list) => {
+      const next = [...(list ?? [])];
+      next.splice(selected + 1, 0, copy);
+      return next;
+    });
+    setDirty(true);
+  }
+
+  function moveRow(direction: -1 | 1) {
+    setRows((list) => {
+      const next = [...(list ?? [])];
+      const target = selected + direction;
+      if (target < 0 || target >= next.length) return next;
+      const [item] = next.splice(selected, 1);
+      next.splice(target, 0, item);
+      return next;
+    });
+    setSelected((s) => s + direction);
+    setDirty(true);
+  }
+
+  async function copyMenuFrom(otherLocation: string) {
+    if (!otherLocation) return;
+    try {
+      const data = await api.content();
+      const payload = data[`${otherLocation}:menu`]?.payload;
+      if (Array.isArray(payload)) {
+        setRows(payload as Row[]);
+        setSelected(0);
+        setDirty(true);
+        setMessage({ tone: "success", text: `Carte copiée depuis ${otherLocation} (pensez à enregistrer).` });
+      }
+    } catch {
+      setMessage({ tone: "error", text: "Copie impossible." });
+    }
+  }
+
   async function save() {
     setSaving(true);
     setMessage(null);
     try {
-      await api.saveContent(block, rows);
+      await api.saveContent(contentKey, rows);
       setDirty(false);
       setOffline(false);
       setMessage({ tone: "success", text: "Modifications enregistrees sur le serveur." });
@@ -261,6 +346,37 @@ export function ContentScreen({
         {message && !offline && (
           <div className="mb-5">
             <Notice tone={message.tone}>{message.text}</Notice>
+          </div>
+        )}
+
+        {block === "menu" && (
+          <div className="mb-5 flex flex-wrap items-center gap-2">
+            <ActionButton onClick={addRow}>+ Ajouter un plat</ActionButton>
+            <ActionButton onClick={duplicateRow} disabled={!current}>
+              Dupliquer
+            </ActionButton>
+            <ActionButton onClick={removeRow} disabled={!(rows && rows.length > 1)}>
+              Supprimer
+            </ActionButton>
+            <ActionButton onClick={() => moveRow(-1)} disabled={selected <= 0}>
+              Monter
+            </ActionButton>
+            <ActionButton onClick={() => moveRow(1)} disabled={!(rows) || selected >= rows.length - 1}>
+              Descendre
+            </ActionButton>
+            <select
+              aria-label="Copier la carte d'un autre restaurant"
+              className="rounded-card border border-cream/15 bg-coal px-3 py-2 text-sm text-cream"
+              defaultValue=""
+              onChange={(e) => void copyMenuFrom(e.target.value)}
+            >
+              <option value="">Copier la carte d'un autre restaurant…</option>
+              {locations.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
           </div>
         )}
 

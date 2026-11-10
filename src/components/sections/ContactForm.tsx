@@ -7,12 +7,15 @@ import { AvailabilityPill } from "../ui/AvailabilityPill";
 import { useAvailability } from "../../hooks/useAvailability";
 import { isApiConfigured, sendReservation } from "../../admin/config";
 import { useContent } from "../../content/store";
+import { telHref } from "../../utils/phone";
 
 interface FormData {
   name: string;
   email: string;
   phone: string;
+  locationId: string;
   date: string;
+  time: string;
   guests: string;
   message: string;
 }
@@ -21,13 +24,21 @@ const initialData: FormData = {
   name: "",
   email: "",
   phone: "",
+  locationId: "",
   date: "",
+  time: "",
   guests: "2",
   message: "",
 };
 
+/** Créneaux d'arrivée : 12h00 → 23h30, pas de 30 minutes. */
+const TIME_SLOTS = Array.from({ length: 24 }, (_, i) => {
+  const hour = 12 + Math.floor(i / 2);
+  const minute = i % 2 === 0 ? "00" : "30";
+  return `${String(hour).padStart(2, "0")}:${minute}`;
+});
+
 /** Numéro à composer quand l'API est absente : vient du contenu, jamais en dur. */
-const telHref = (phone: string) => `tel:+${phone.replace(/\s/g, "")}`;
 
 export function ContactForm() {
   const [formData, setFormData] = useState<FormData>(initialData);
@@ -37,7 +48,7 @@ export function ContactForm() {
   // Recalculée chaque minute : la pastille reste exacte si l'onglet reste ouvert.
   const availability = useAvailability();
   // Le numéro affiché suit la source de vérité (admin), comme le reste du site.
-  const { phone, texts } = useContent();
+  const { phone, texts, locations } = useContent();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -76,8 +87,7 @@ export function ContactForm() {
                 Demande envoyée
               </h2>
               <p className="text-smoke leading-relaxed">
-                Merci pour votre demande de réservation. Nous vous confirmerons
-                par email dans les plus brefs délais.
+                {texts.contact.successNote}
               </p>
               <div className="mt-8">
                 <Button variant="secondary" className="border-cream/30 text-cream hover:border-gold hover:text-gold" onClick={() => setIsSubmitted(false)}>
@@ -193,6 +203,28 @@ export function ContactForm() {
                 />
               </div>
               <div>
+                <label htmlFor="time" className="block text-smoke text-sm mb-2">
+                  Heure souhaitée *
+                </label>
+                <select
+                  id="time"
+                  name="time"
+                  value={formData.time}
+                  onChange={handleChange}
+                  required
+                  className="w-full rounded-card border border-gold/20 bg-cream/5 px-4 py-3 text-cream focus:border-gold focus:outline-none transition-colors"
+                >
+                  <option value="" disabled>
+                    Choisissez une heure…
+                  </option>
+                  {TIME_SLOTS.map((slot) => (
+                    <option key={slot} value={slot}>
+                      {slot.replace(":", "h")}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <label htmlFor="guests" className="block text-smoke text-sm mb-2">
                   Nombre de convives *
                 </label>
@@ -210,6 +242,28 @@ export function ContactForm() {
                     </option>
                   ))}
                   <option value="9+">9+ personnes</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <label htmlFor="locationId" className="block text-smoke text-sm mb-2">
+                  Site souhaité *
+                </label>
+                <select
+                  id="locationId"
+                  name="locationId"
+                  value={formData.locationId}
+                  onChange={handleChange}
+                  required
+                  className="w-full rounded-card border border-gold/20 bg-cream/5 px-4 py-3 text-cream focus:border-gold focus:outline-none transition-colors"
+                >
+                  <option value="" disabled>
+                    Choisissez un site…
+                  </option>
+                  {locations.map((location) => (
+                    <option key={location.id} value={location.id}>
+                      {location.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="md:col-span-2">

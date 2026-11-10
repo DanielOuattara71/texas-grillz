@@ -111,9 +111,9 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
                 <div className="aspect-[4/3] rounded-card overflow-hidden bg-coal shadow-2xl shadow-ink/10">
                   <img
                     src={mediaUrl(
-                      visuals["histoire-evolution"]?.src || "/images/locations/lyon-3.jpg"
+                      visuals["histoire-evolution"]?.src || "/images/locations/zone-4.jpg"
                     )}
-                    alt="Salle de Texas GrillZ en service"
+                    alt="Espace service de Texas GrillZ à Marcory Zone 4, Abidjan"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -168,7 +168,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
             <Reveal variant="right">
               <div className="space-y-8">
                 <span className="font-mono text-xs uppercase tracking-[0.2em] text-gold">
-                  03 — Le Fondateur
+                  03. Le Fondateur
                 </span>
                 <h2 className="font-display text-[clamp(2.5rem,6vw,4.5rem)] font-bold text-cream leading-[0.95]">
                   L'Homme Derrière

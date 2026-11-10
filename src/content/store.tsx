@@ -40,6 +40,7 @@ import {
 } from "../data/visuals";
 import { siteTexts, historyTexts, type SiteTexts, type HistoryTexts } from "../data/texts";
 import { formatHourGroups } from "../utils/availability";
+import { categories as deliveredCategories } from "../utils/menu";
 
 /**
  * Fusionne un bloc de textes recu par l'API sur les textes livres.
@@ -87,6 +88,12 @@ export interface Content {
   menu: MenuItem[];
   /** Tuiles d'envie, resoutes sur `menu`. */
   cravings: Craving[];
+  /** Cartes par restaurant (`<id>:menu`), validées avant usage. */
+  menuByLocation: Record<string, MenuItem[]>;
+  /** Catégories de carte par restaurant (livrées depuis le backend). */
+  categoriesByLocation: Record<string, { id: string; label: string; note: string; sort: number }[]>;
+  /** Horaires par restaurant (`<id>:hours`), validés avant usage. */
+  hoursByLocation: Record<string, DayService[]>;
   locations: Location[];
   services: Service[];
   testimonials: Testimonial[];
@@ -101,7 +108,7 @@ export interface Content {
   tagline: string;
   established: number;
   tonight: string[];
-  rating: { score: number; reviews: number; url: string };
+  rating: { score: number; reviews: number; url: string } | undefined;
   social: Record<string, string>;
   navLinks: { label: string; href: string }[];
   /** Emplacements visuels uniques (hero, logo, page Histoire…), par identifiant. */
@@ -150,6 +157,21 @@ const readString = (value: unknown, fallback: string): string =>
 export const defaultContent = (): Content => ({
   menu: deliveredMenu,
   cravings: deliveredCravings,
+  menuByLocation: Object.fromEntries(
+    deliveredLocations.map((location) => [location.id, [...deliveredMenu]])
+  ),
+  categoriesByLocation: Object.fromEntries(
+    deliveredLocations.map((location) => [
+      location.id,
+      deliveredCategories.map((c, index) => ({ id: c.id, label: c.label, note: c.note || "", sort: index + 1 })),
+    ])
+  ),
+  hoursByLocation: Object.fromEntries(
+    deliveredLocations.map((location) => [
+      location.id,
+      location.schedule ?? standardSchedule,
+    ])
+  ),
   locations: deliveredLocations,
   services: deliveredServices,
   testimonials: deliveredTestimonials,
@@ -202,6 +224,46 @@ export function mergeContent(payload: unknown): Content {
     const own = sevenDays((location as { schedule?: unknown }).schedule);
     locationHours[location.id] = sevenDays(edited[location.id]) ?? own ?? hours;
   }
+
+  // Contenu par restaurant : `byLocation` (cartes + horaires), validé avant usage.
+  // Repli sur `defaultContent` (copie livrée par restaurant) pour que la
+  // provenance reste explicite même sans backend.
+  const menuByLocation: Record<string, MenuItem[]> = { ...base.menuByLocation };
+  const hoursByLocation: Record<string, DayService[]> = { ...base.hoursByLocation };
+  const byLoc = record(blocks.byLocation) ?? {};
+  const byLocEdited = record(blocks.byLocation) ?? {};
+  // Accepte aussi l'ancienne forme `locationHours` explicite ci-dessus
+  // et les blocs "<id>:menu" / "<id>:hours" étalés à la racine.
+  const rawByLocation: Record<string, unknown> = {
+    ...(typeof byLoc === "object" && byLoc !== null ? (byLoc as Record<string, unknown>) : {}),
+  };
+  for (const [key, value] of Object.entries(blocks)) {
+    const idx = key.indexOf(":");
+    if (idx <= 0) continue;
+    const locId = key.slice(0, idx);
+    const baseKey = key.slice(idx + 1);
+    if (baseKey !== "menu" && baseKey !== "hours") continue;
+    const prev = record(rawByLocation[locId]) ?? {};
+    rawByLocation[locId] = { ...prev, [baseKey]: value };
+  }
+  for (const location of locations) {
+    const entry = record(rawByLocation[location.id]) ?? record(byLocEdited[location.id]) ?? {};
+    const seatMenu = rows<MenuItem>(entry.menu, 1) ?? (entry.menu !== undefined ? rows<MenuItem>(entry.menu) : null);
+    if (Array.isArray(entry.menu) && (entry.menu as unknown[]).every((e) => typeof e === "object" && e !== null)) {
+      menuByLocation[location.id] = entry.menu as MenuItem[];
+    }
+    void seatMenu;
+    const seatHours = sevenDays(entry.hours);
+    if (seatHours) hoursByLocation[location.id] = seatHours;
+    else if (locationHours[location.id]) hoursByLocation[location.id] = locationHours[location.id];
+  }
+  // Ne montrer que les restaurants actifs et visibles.
+  const activeLocations = locations.filter(
+    (l) =>
+      l.active !== false &&
+      (l as { status?: string }).status !== "bientot" &&
+      (l as { published?: boolean }).published !== false
+  );
 
   // Les envies referencent la carte par id : on les resout sur la carte
   // reellement affichee, jamais sur le fichier livre. Un plat supprime ecarte
@@ -282,7 +344,10 @@ export function mergeContent(payload: unknown): Content {
   return {
     menu,
     cravings,
-    locations,
+    menuByLocation,
+    hoursByLocation,
+    categoriesByLocation: base.categoriesByLocation,
+    locations: activeLocations,
     services: rows<Service>(blocks.services) ?? base.services,
     testimonials: rows<Testimonial>(blocks.testimonials) ?? base.testimonials,
     proofs: rows<Proof>(blocks.proofs) ?? base.proofs,
@@ -296,11 +361,13 @@ export function mergeContent(payload: unknown): Content {
     tonight: Array.isArray(site.tonight)
       ? site.tonight.map(String)
       : base.tonight,
-    rating: {
-      score: readNumber(rating.score, base.rating.score),
-      reviews: readNumber(rating.reviews, base.rating.reviews),
-      url: readString(rating.url, base.rating.url),
-    },
+    rating: base.rating
+      ? {
+          score: readNumber(rating.score, base.rating.score),
+          reviews: readNumber(rating.reviews, base.rating.reviews),
+          url: readString(rating.url, base.rating.url),
+        }
+      : undefined,
     social: social
       ? Object.fromEntries(
           Object.entries(social).map(([key, value]) => [key, String(value)])
@@ -344,6 +411,101 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {
         // API indisponible : le visiteur garde le contenu du depot.
+      });
+
+    // Restaurants actifs depuis la table `restaurants` (source de vérité).
+    fetch(`${API_BASE}/api/restaurants`, { headers: { Accept: "application/json" } })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { restaurants?: unknown[] } | null) => {
+        if (!alive || !payload || !Array.isArray(payload.restaurants)) return;
+        const rows = payload.restaurants as Record<string, unknown>[];
+        if (rows.length === 0) return;
+        setContent((current) => {
+          const next: Location[] = rows
+            .filter((r) => r.active !== false && r.published !== false)
+            .map((r, index) => ({
+              id: String(r.id ?? ""),
+              number: String(index + 1).padStart(2, "0"),
+              name: String(r.name ?? ""),
+              address: String(r.address ?? ""),
+              phone: String(r.phone ?? ""),
+              image: String(r.image ?? ""),
+              mapsUrl: String(r.mapsUrl ?? r.maps_url ?? ""),
+              active: true,
+              published: (r as { published?: boolean }).published !== false,
+            }));
+          return { ...current, locations: next, fromApi: true };
+        });
+      })
+      .catch(() => {
+        // Repli bloc/`locations livrées`.
+      });
+
+    // Catégories par restaurant (table categories, source de vérité).
+    fetch(`${API_BASE}/api/categories`, { headers: { Accept: "application/json" } })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { categories?: unknown[] } | null) => {
+        if (!alive || !payload || !Array.isArray(payload.categories)) return;
+        setContent((current) => {
+          const byRestaurant: Record<string, { id: string; label: string; note: string; sort: number }[]> = {};
+          for (const raw of payload.categories as Record<string, unknown>[]) {
+            const r = raw as Record<string, unknown>;
+            const rid = String(r.locationId ?? "");
+            if (!rid) continue;
+            const item = {
+              id: String(r.id ?? ""),
+              label: String(r.label ?? r.id ?? ""),
+              note: String(r.note ?? ""),
+              sort: Number(r.sort) || 0,
+            };
+            (byRestaurant[rid] = byRestaurant[rid] ?? []).push(item);
+          }
+          for (const key of Object.keys(byRestaurant)) {
+            byRestaurant[key].sort((a, b) => a.sort - b.sort || a.label.localeCompare(b.label));
+          }
+          // Sans table pour un restaurant, on garde le repli livré.
+          const merged = { ...current.categoriesByLocation, ...byRestaurant };
+          return { ...current, categoriesByLocation: merged };
+        });
+      })
+      .catch(() => {
+        // Repli : les catégories livrées restent.
+      });
+
+    // Entités Plat (tables) : remplace intégralement les cartes par restaurant.
+    fetch(`${API_BASE}/api/plats`, { headers: { Accept: "application/json" } })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { plats?: unknown[] } | null) => {
+        if (!alive || !payload || !Array.isArray(payload.plats)) return;
+        setContent((current) => {
+          const byLocation: Record<string, MenuItem[]> = {};
+          for (const raw of payload.plats as Record<string, unknown>[]) {
+            const r = raw as Record<string, unknown>;
+            const rid = String(r.locationId ?? r.restaurantId ?? "");
+            if (!rid) continue;
+            const price = Number(r.price ?? 0);
+            const priceFrom = Boolean(r.priceFrom);
+            const id = String(r.id ?? "");
+            const item: MenuItem = {
+              id,
+              name: String(r.name ?? ""),
+              description: String(r.description ?? ""),
+              price: Number.isFinite(price) ? price : 0,
+              category: String(r.category ?? "bbq") as MenuItem["category"],
+              priceFrom,
+              locationIds: [rid],
+              locationId: rid,
+              image: String(r.image ?? ""),
+            };
+            (byLocation[rid] = byLocation[rid] ?? []).push(item);
+          }
+          // Sans table peuplée pour un restaurant, on garde le repli livré.
+          const merged = { ...current.menuByLocation, ...byLocation };
+          return { ...current, menuByLocation: merged, fromApi: current.fromApi || Object.keys(byLocation).length > 0 };
+        });
+      })
+      .catch(() => {
+        // Repli : les plats de `byLocation`/`src/data` restent.
       });
 
     return () => {

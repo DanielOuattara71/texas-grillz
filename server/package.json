@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "node test/format.test.cjs && node test/integration.cjs && node test/e2e.cjs && node test/media.cjs && node test/lien-api.cjs"
+    "test": "node test/format.test.cjs && node test/integration.cjs && node test/e2e.cjs && node test/media.cjs && node test/lien-api.cjs && node test/rights.cjs && node test/plats-restaurants.cjs"
   },
   "engines": {
     "node": ">=20"
@@ -17,6 +17,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.11.1",
+    "cloudinary": "^2.11.0",
     "compression": "^1.8.2",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.6.1",

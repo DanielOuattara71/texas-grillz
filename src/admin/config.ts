@@ -7,6 +7,8 @@
  * visiteur. Avec l'API configuree, la demande atterrit dans l'espace
  * d'administration et le message de confirmation est vrai.
  */
+import { site } from "../data/site";
+
 const fromEnv = import.meta.env.VITE_API_URL as string | undefined;
 
 export const API_BASE = (fromEnv ?? "").replace(/\/$/, "");
@@ -17,7 +19,10 @@ export interface ReservationDraft {
   name: string;
   email: string;
   phone: string;
+  locationId: string;
   date: string;
+  /** Heure souhaitée (HH:MM), dans le formulaire public uniquement. */
+  time: string;
   guests: string;
   message: string;
 }
@@ -36,7 +41,6 @@ export async function sendReservation(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(draft),
     });
-
     if (!response.ok) {
       const text = await response.text();
       const data = text ? (JSON.parse(text) as { error?: string }) : null;
@@ -45,8 +49,8 @@ export async function sendReservation(
         error:
           data?.error ??
           (response.status === 429
-            ? "Trop de demandes envoyees. Appelez-nous au 04 78 00 00 00."
-            : "Votre demande n'a pas pu etre envoyee. Appelez-nous au 04 78 00 00 00."),
+            ? `Trop de demandes envoyees. Appelez-nous au ${site.phone}.`
+            : `Votre demande n'a pas pu etre envoyee. Appelez-nous au ${site.phone}.`),
       };
     }
 
@@ -55,8 +59,7 @@ export async function sendReservation(
     return {
       ok: false,
       error:
-        "Serveur injoignable. Appelez-nous au 04 78 00 00 00 et nous noterons la table.",
+        `Serveur injoignable. Appelez-nous au ${site.phone} et nous noterons la table.`,
     };
   }
 }
-

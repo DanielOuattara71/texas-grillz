@@ -77,6 +77,22 @@ hors ligne, premier démarrage après déploiement — le store conserve les don
 livrées avec le dépôt, silencieusement. Un visiteur voit toujours un site
 complet. Seul l'espace d'administration exige le serveur.
 
+### Contenu par siège (branche)
+
+Un restaurant peut ouvrir plusieurs sièges (`lyon-3`, `lyon-7`, …). Chaque
+bloc peut alors être édité globalement (`menu`) ou par siège
+(`<locationId>:<base>`, ex. `lyon-3:menu`) :
+
+- `PUT /api/admin/content/:key` accepte une clé préfixée par un siège.
+- `GET /api/content?location=<locationId>` renvoie le contenu du siège : les
+  blocs du siège en vigueur, avec la surcharge du siège qui prime sur le contenu
+  global. Les horaires du siège sont rattachés via `locationHours`.
+- L'espace admin expose un sélecteur de siège pour le super admin / développeur ;
+  l'admin par siège n'édit que le sien.
+- `DELETE /api/admin/locations/:locationId/content` supprime tous les blocs du
+  siège (super admin / développeur). Le contenu global est préservé.
+
+
 Les envies sont le cas délicat : elles référencent un plat par son `id` et
 héritent de son nom et de son prix. Elles sont donc toujours résolues sur la
 carte réellement affichée ; un plat supprimé écarte l'envie qui pointait dessus

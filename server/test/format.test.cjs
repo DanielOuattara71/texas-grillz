@@ -15,14 +15,12 @@ const check = (label, ok, extra = "") => {
 
 /** Un plat complet et valide, servant de reference. */
 const platValide = {
-  id: "brisket",
-  name: "Brisket Fumé",
-  description: "Poitrine de bœuf fumée 12h au bois de hêtre",
-  price: 24,
-  category: "viandes",
-  badge: "signature",
-  image: "/uploads/products/brisket-abc123.jpg",
-  orders: 412,
+  id: "ribs-o-ribs",
+  name: "Ribs Ô Ribs",
+  description: "Travers de porc assaisonnés à la sauce secrète",
+  price: 13000,
+  category: "bbq",
+  image: "/uploads/products/ribs-o-ribs-abc123.jpg",
 };
 
 /* ── Le cas nominal ──────────────────────────────────────────────────────── */
@@ -42,19 +40,23 @@ check(
   "Titre de plus de 120 caracteres refuse",
   !validateBlock("menu", [{ ...platValide, name: "a".repeat(121) }]).ok
 );
-// Description manquante.
+// Description vide acceptee (boissons, garnitures).
 check(
-  "Description manquante refusée",
-  !validateBlock("menu", [{ ...platValide, description: "" }]).ok
+  "Description vide acceptee",
+  validateBlock("menu", [{ ...platValide, description: "" }]).ok
 );
-// Prix : type, signe, bornes.
+// Prix : type, signe, bornes (FCFA entiers).
 check("Prix non numerique refuse", !validateBlock("menu", [{ ...platValide, price: "24" }]).ok);
 check("Prix negatif refuse", !validateBlock("menu", [{ ...platValide, price: -1 }]).ok);
 check("Prix aberrant refuse", !validateBlock("menu", [{ ...platValide, price: 1e9 }]).ok);
 check("Prix a 0 accepte", validateBlock("menu", [{ ...platValide, price: 0 }]).ok);
 check(
-  "Prix a deux decimales accepte",
-  validateBlock("menu", [{ ...platValide, price: 24.5 }]).ok
+  "Prix FCFA entier accepte",
+  validateBlock("menu", [{ ...platValide, price: 13000 }]).ok
+);
+check(
+  "Prix a decimales refuse (FCFA entier)",
+  !validateBlock("menu", [{ ...platValide, price: 24.5 }]).ok
 );
 // URL d'image : la regle demandee.
 check(
@@ -79,21 +81,19 @@ check(
 );
 check(
   "Chemin relatif refusé (ne mènerait nulle part)",
-  !validateBlock("menu", [{ ...platValide, image: "brisket.jpg" }]).ok
+  !validateBlock("menu", [{ ...platValide, image: "ribs-o-ribs.jpg" }]).ok
 );
 check(
   "URL d'image sans extension refusée",
-  !validateBlock("menu", [{ ...platValide, image: "/uploads/products/brisket" }]).ok
+  !validateBlock("menu", [{ ...platValide, image: "/uploads/products/ribs-o-ribs" }]).ok
 );
 
 /* ── Identifiant et categorie ────────────────────────────────────────────── */
 
-check("Identifiant avec espace refusé", !validateBlock("menu", [{ ...platValide, id: "pulled pork" }]).ok);
-check("Identifiant avec tiret accepté", validateBlock("menu", [{ ...platValide, id: "pulled-pork" }]).ok);
+check("Identifiant avec espace refusé", !validateBlock("menu", [{ ...platValide, id: "ribs o ribs" }]).ok);
+check("Identifiant avec tiret accepté", validateBlock("menu", [{ ...platValide, id: "ribs-o-ribs" }]).ok);
 check("Categorie invalide refusée", !validateBlock("menu", [{ ...platValide, category: "entrees" }]).ok);
-check("Badge invalide refuse", !validateBlock("menu", [{ ...platValide, badge: "promo" }]).ok);
-check("Badge absent accepte", validateBlock("menu", [{ ...platValide, badge: undefined }]).ok);
-check("Commandes par defaut a 0", validateBlock("menu", [{ ...platValide, orders: undefined }]).ok);
+check("Categorie bbq acceptee", validateBlock("menu", [{ ...platValide, category: "bbq" }]).ok);
 
 /* ── Formes generales ────────────────────────────────────────────────────── */
 
@@ -179,7 +179,7 @@ const livre = require("node:fs").readFileSync(
   require("node:path").join(__dirname, "..", "..", "src", "data", "menu.ts"),
   "utf8"
 );
-const nombrePlats = (livre.match(/\n    id: "/g) || []).length;
+const nombrePlats = (livre.match(/dish\("/g) || []).length;
 check(
   "Le fichier src/data/menu.ts declare des plats",
   nombrePlats > 0,

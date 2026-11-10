@@ -89,6 +89,7 @@ const check = (label, ok, extra = "") => {
     name: "Famille Dupont",
     email: "dupont@exemple.fr",
     phone: "06 12 34 56 78",
+    locationId: "zone-4",
     date: "2026-12-24",
     guests: "6",
     message: "Une table pour Noel, allergie aux noix.",
@@ -126,6 +127,58 @@ const check = (label, ok, extra = "") => {
   // Une reservation invalide est refusee.
   const bad = await request("POST", "/api/reservations", { name: "", email: "pas-un-email" });
   check("Reservation invalide refusee (400)", bad.status === 400, `recu ${bad.status}`);
+
+  // Contenu par siege : un admin (developpeur = super admin) publie un bloc,
+  // puis le supprime via l'action « supprimer ce siege ».
+  const writeScoped = await request("PUT", "/api/admin/content/zone-4:menu", {
+    payload: [
+      {
+        id: "ribs-o-ribs",
+        name: "Ribs Ô Ribs",
+        description: "Travers de porc assaisonnés",
+        price: 31000,
+        category: "bbq",
+        image: "",
+      },
+    ],
+  });
+  check("PUT /api/admin/content/zone-4:menu -> 200", writeScoped.status === 200, `recu ${writeScoped.status}`);
+
+  const beforeDelete = await request("GET", "/api/content?location=zone-4");
+  check(
+    "Le siege publie un menu lisible via ?location=",
+    beforeDelete.status === 200 && Array.isArray(JSON.parse(beforeDelete.body).menu)
+  );
+
+  const writeGlobal = await request("PUT", "/api/admin/content/site", {
+    payload: { tagline: "Barbecue au feu de bois" },
+  });
+  check("PUT /api/admin/content/site -> 200", writeGlobal.status === 200, `recu ${writeGlobal.status}`);
+
+  const del = await request("DELETE", "/api/admin/locations/zone-4/content");
+  check("DELETE /api/admin/locations/zone-4/content -> 200", del.status === 200, `recu ${del.status}`);
+
+  const afterDelete = await request("GET", "/api/content?location=zone-4");
+  check(
+    "Le contenu du siege est supprime, le contenu global reste",
+    afterDelete.status === 200 &&
+      JSON.parse(afterDelete.body).menu === undefined &&
+      JSON.parse(afterDelete.body).site?.tagline === "Barbecue au feu de bois"
+  );
+
+  // Un admin simple (role `admin`) n'est pas super admin : la suppression du
+  // contenu d'un siege reste refusee.
+  const Database = require("better-sqlite3");
+  const db = new Database(process.env.DATABASE_PATH);
+  db.prepare("UPDATE users SET role = 'admin' WHERE email = 'gerante@texas-grillz.fr'").run();
+  db.close();
+  const relogin = await request("POST", "/api/login", {
+    email: "gerante@texas-grillz.fr",
+    password: "un-mot-de-passe-tres-long",
+  });
+  cookie = relogin.setCookie[0].split(";")[0];
+  const delForbidden = await request("DELETE", "/api/admin/locations/zone-4/content");
+  check("DELETE contenu siege refuse pour admin simple (403)", delForbidden.status === 403, `recu ${delForbidden.status}`);
 
   server.kill();
   fs.rmSync(path.dirname(dbFile), { recursive: true, force: true });

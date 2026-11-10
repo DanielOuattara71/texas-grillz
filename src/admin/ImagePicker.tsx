@@ -11,19 +11,12 @@
  * Les cas problemes sont signales — reference vide, format inattendu — plutot
  * que d'ecrire une adresse qui ne mènerait nulle part.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { api, ApiError, type MediaFile } from "./api";
+import { SessionContext } from "./SessionContext";
 import { API_BASE } from "./config";
 import { ActionButton, Notice, Select } from "./ui";
 import { cn } from "../utils/cn";
-
-/** Destinations proposees lors d'un envoi depuis cet ecran. */
-const FOLDERS = [
-  { id: "products", label: "Plats" },
-  { id: "gallery", label: "Galerie" },
-  { id: "locations", label: "Salles" },
-  { id: "misc", label: "Divers" },
-];
 
 /**
  * Photos livrees avec le depot. Liste figee : le navigateur ne peut pas
@@ -31,9 +24,9 @@ const FOLDERS = [
  * par fichier. Elle sert surtout a reaffecter les tirages existants.
  */
 const REPO_IMAGES = [
-  "/images/products/brisket.jpg",
-  "/images/products/ribs.jpg",
-  "/images/products/chicken.jpg",
+  "/images/products/ribs-o-ribs.jpg",
+  "/images/products/steak-filet-boeuf.jpg",
+  "/images/products/poulet-texan-entier.jpg",
   "/images/gallery/1.jpg",
   "/images/gallery/2.jpg",
   "/images/gallery/3.jpg",
@@ -41,18 +34,20 @@ const REPO_IMAGES = [
   "/images/gallery/5.jpg",
   "/images/gallery/6.jpg",
   "/images/gallery/7.jpg",
-  "/images/locations/lyon-3.jpg",
-  "/images/locations/lyon-7.jpg",
-  "/images/locations/villeurbanne.jpg",
-  "/images/locations/caluire.jpg",
+  "/images/locations/zone-4.jpg",
+  "/images/locations/riviera-jardin.jpg",
+  "/images/locations/deux-plateaux-latrille.jpg",
+  "/images/locations/yopougon-maroc.jpg",
+  "/images/locations/cocody-cite-des-arts.jpg",
   "/images/histoire.jpg",
 ];
 
 const shortName = (url: string) => url.split("/").pop() ?? url;
 
-/** Une adresse utilisable est une image ; une illustration `.svg` ne l'est pas. */
+/** Une adresse utilisable est une image (`.svg` reste exclu). */
 export const isUsableImage = (url: string): boolean =>
-  /\/[^/]+\.(jpe?g|png|webp|avif)$/i.test(url);
+  /res\.cloudinary\.com\/[^/]+\/(?:image\/upload\/)?(?:v\d+\/)?[^\s"']*\.(jpe?g|png|webp|avif)(\?.*)?$/i.test(url) ||
+  /\/[^/?]+\.(jpe?g|png|webp|avif)(\?.*)?$/i.test(url);
 
 
 /** URL absolue d'une image : les `/uploads` sont servis par l'API. */
@@ -73,8 +68,23 @@ export function ImagePicker({
   /** Affiche un avertissement quand aucune photo n'est associee. */
   required?: boolean;
 }) {
+  // Lecture tolérante de la session : hors SessionProvider (tests),
+  // on retombe sur les dossiers par défaut au lieu de lever.
+  const session = useContext(SessionContext);
+  const user = session?.user ?? null;
+  const isAdmin = Boolean(user) && (user?.role === "admin" || !user?.role);
+  const ownFolder = user?.location_id ? `locations/${user.location_id}` : "products";
+  // Le dossier galerie est réservé au super admin.
+  const folderOptions = isAdmin
+    ? [{ id: ownFolder, label: "Mon restaurant" }]
+    : [
+        { id: "products", label: "Plats" },
+        ...(user?.role === "super_admin" ? [{ id: "gallery", label: "Galerie" }] : []),
+        { id: "locations", label: "Salles" },
+        { id: "misc", label: "Divers" },
+      ];
   const [files, setFiles] = useState<MediaFile[]>([]);
-  const [folder, setFolder] = useState("products");
+  const [folder, setFolder] = useState(ownFolder);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -185,7 +195,7 @@ export function ImagePicker({
               aria-label="Dossier de depot"
               className="w-32"
             >
-              {FOLDERS.map((entry) => (
+              {folderOptions.map((entry) => (
                 <option key={entry.id} value={entry.id}>
                   {entry.label}
                 </option>

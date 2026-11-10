@@ -1,5 +1,6 @@
 import { useContent, useHourLines } from "../../content/store";
 import { mediaUrl } from "../../utils/photoSlot";
+import { telHref } from "../../utils/phone";
 import { Container } from "../ui/Container";
 
 interface FooterProps {
@@ -7,8 +8,7 @@ interface FooterProps {
 }
 
 export function Footer({ onNavigate }: FooterProps) {
-  const { address, phone, email, tagline, established, social, navLinks, visuals } =
-    useContent();
+  const { address, phone, email, tagline, established, social, navLinks, visuals, locations } = useContent();
   const hours = useHourLines();
   return (
     <footer className="relative overflow-hidden bg-charcoal text-cream">
@@ -28,7 +28,7 @@ export function Footer({ onNavigate }: FooterProps) {
               GrillZ
             </span>
           </span>
-          <p className="text-smoke mt-3 text-sm">{tagline} — Depuis {established}</p>
+          <p className="text-smoke mt-3 text-sm">{tagline}. Depuis {established}.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 mb-16">
@@ -63,20 +63,24 @@ export function Footer({ onNavigate }: FooterProps) {
               Contact
             </h3>
             <ul className="flex flex-col gap-3 text-sm">
-              <li className="text-smoke">{address}</li>
+              {locations.map((loc) => (
+                <li key={loc.id} className="text-smoke">
+                  <span className="text-cream">{loc.name.replace(/^Texas GrillZ, /, "")}</span>
+                  {" — "}
+                  {loc.address}{" "}
+                  <a href={telHref(loc.phone)} className="hover:text-cream transition-colors duration-200">
+                    {loc.phone}
+                  </a>
+                </li>
+              ))}
+              {locations.length === 0 && <li className="text-smoke">{address}</li>}
               <li>
-                <a
-                  href={`tel:${phone.replace(/\s/g, "")}`}
-                  className="text-smoke hover:text-cream transition-colors duration-200"
-                >
+                <a href={telHref(phone)} className="text-smoke hover:text-cream transition-colors duration-200">
                   {phone}
                 </a>
               </li>
               <li>
-                <a
-                  href={`mailto:${email}`}
-                  className="text-smoke hover:text-cream transition-colors duration-200"
-                >
+                <a href={`mailto:${email}`} className="text-smoke hover:text-cream transition-colors duration-200">
                   {email}
                 </a>
               </li>

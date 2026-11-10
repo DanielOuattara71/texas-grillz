@@ -9,7 +9,7 @@
  * et que l'etat « non connecte » est atteint.
  *
  * Deuxieme partie : les ecrans qui lisent le contenu (carte, visuels, textes)
- * doivent eux aussi avoir un `ContentProvider`. On rend donc `SiteVisualsScreen`
+ * doivent eux aussi avoir un `ContentProvider`. On rend donc `VisualsScreen`
  * — avec et sans provider — pour verrouiller la garantie.
  */
 import { createElement } from "react";
@@ -17,7 +17,8 @@ import { renderToString } from "react-dom/server";
 import { SessionProvider } from "../src/admin/SessionContext";
 import { LoginScreen } from "../src/admin/LoginScreen";
 import { ContentProvider } from "../src/content/store";
-import { SiteVisualsScreen } from "../src/admin/SiteVisualsScreen";
+import { VisualsScreen } from "../src/admin/VisualsScreen";
+import { isPrivileged, needsLocationBlocking, resolveLocationId } from "../src/admin/location";
 
 const results: [string, boolean][] = [];
 const check = (label: string, ok: boolean) => results.push([label, ok]);
@@ -59,18 +60,46 @@ check(
 
 /* ── Les ecrans de contenu ont besoin du ContentProvider ───────────────────── */
 
-const sansProvider = render(() => createElement(SiteVisualsScreen));
+const sansProvider = render(() => createElement(VisualsScreen));
 check(
   "Hors ContentProvider, l'erreur est explicite",
   Boolean(sansProvider.error?.includes("useContent doit etre utilise"))
 );
 
 const avecProvider = render(() =>
-  createElement(ContentProvider, null, createElement(SiteVisualsScreen))
+  createElement(ContentProvider, null, createElement(VisualsScreen))
 );
 check(
   "Avec ContentProvider, l'ecran se rend sans erreur",
   !avecProvider.error && avecProvider.html.length > 0
+);
+
+/* ── D1 : un admin sans location_id ne peut rien éditer ───────────────────── */
+// La dérivation est synchrone : jamais de fenêtre où `locationId` vaut
+// `null` puis l'édition tombe sur le contenu global (clé `menu`).
+check(
+  "D1 : admin sans restaurant — locationId null (bloqué)",
+  resolveLocationId({ id: 1, email: "a@example.com", name: "A", role: "admin", location_id: null }) === null
+);
+check(
+  "D1 : admin sans restaurant — écran bloquant",
+  needsLocationBlocking({ id: 1, email: "a@example.com", name: "A", role: "admin", location_id: null }) === true
+);
+check(
+  "D1 : admin rattaché — location synchrone, sans effet",
+  resolveLocationId({ id: 2, email: "b@example.com", name: "B", role: "admin", location_id: "zone-4" }) === "zone-4"
+);
+check(
+  "D1 : admin rattaché — pas de blocage",
+  needsLocationBlocking({ id: 2, email: "b@example.com", name: "B", role: "admin", location_id: "zone-4" }) === false
+);
+check(
+  "D1 : super_admin — sélecteur manuel conservé",
+  resolveLocationId({ id: 3, email: "c@example.com", name: "C", role: "super_admin", location_id: null }, "riviera-jardin") === "riviera-jardin"
+);
+check(
+  "D1 : developer — non privilégié (rôle technique, lecture seule)",
+  isPrivileged({ id: 4, email: "d@example.com", name: "D", role: "developer", location_id: null }) === false
 );
 
 const failed = results.filter(([, ok]) => !ok).length;

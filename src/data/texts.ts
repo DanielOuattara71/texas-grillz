@@ -33,11 +33,9 @@ export interface SiteTexts {
     rotatorLabel: string;
     ctaLabel: string;
   };
-  /** Section « Ça fume, ça colle aux doigts ». */
   cravings: SectionHeadingTexts;
   /** Ruban doré répété. */
   marquee: string[];
-  /** Section « Fumé, jamais pressé ». */
   concept: SectionHeadingTexts & {
     chapters: { title: string; text: string }[];
     chips: string[];
@@ -68,60 +66,61 @@ export interface SiteTexts {
 
 export const siteTexts: SiteTexts = {
   proof: {
-    cautionTape: "Fumé au feu de hêtre — Lyon 3ᵉ",
-    rotatorLabel: "Ce soir au feu de hêtre :",
+    cautionTape: "Grillé à Abidjan, Zone 4, Riviera, Deux-Plateaux, Yopougon",
+    rotatorLabel: "Au grill :",
     ctaLabel: "Réserver une table",
   },
 
   cravings: {
     number: "01",
-    label: "Envies du feu",
-    title: "Ça fume,",
-    accent: "ça colle aux doigts",
-    subtitle:
-      "Tout sort du smoker le matin même : quatre coupes fumées, trois accompagnements maison, une tarte aux pécan. Choisissez d'abord avec les yeux.",
+    label: "Envies du grill",
+    title: "Ça grille,",
+    accent: "ça se partage",
+    subtitle: "Ribs, burgers, mix grill : choisissez d'abord avec les yeux.",
   },
 
   marquee: [
-    "Croûte de poivre",
-    "Laque miel-bourbon",
-    "Cheddar affiné",
-    "Cornbread tiède",
-    "Fumé 12 h",
-    "Lyon 3ᵉ",
+    "Ribs Ô Ribs",
+    "Texas Crunchy",
+    "Juicy Maxwell",
+    "Grand Canyon",
+    "Mix Grill",
+    "Yo baby, what's up ?",
+    "Abidjan",
   ],
 
   concept: {
     number: "02",
     label: "Notre histoire",
-    title: "Fumé,",
-    accent: "jamais pressé",
+    title: "Grillé,",
+    accent: "partagé",
     subtitle:
-      "Depuis 2017 à Lyon 3ᵉ, la même routine : allumer le feu à l'aube, laisser la fumée travailler, ouvrir le smoker quand la croûte est prise. C'est long, c'est le goût.",
+      "Depuis 2017, un grill à l'américaine à Abidjan : viandes marinées, portions généreuses, à partager.",
     chapters: [
       {
-        title: "Le feu",
-        text: "Le bois de hêtre entre dans le smoker avant le jour. Douze heures de fumée, une chaleur constante, aucun raccourci.",
+        title: "Le grill",
+        text: "Steaks, ribs et poulet texan cuits au feu.",
       },
       {
         title: "La viande",
-        text: "Quatre coupes chaque matin — brisket, ribs, pulled pork, poulet fermier. Jamais réchauffées, jamais en attente.",
+        text: "Le fondateur revendique la viande fraîche plutôt que congelée.",
       },
       {
-        title: "L'ardoise",
-        text: "Coleslaw coupée le matin, mac & cheese gratiné à la commande, cornbread tiédi au dernier moment.",
+        title: "Les burgers",
+        text: "Juicy Maxwell, Texas Crunchy, Grand Canyon et leurs versions doubles.",
       },
       {
         title: "La table",
-        text: "Les sauces au centre, les planches qui circulent, et le temps qu'il faut pour tout finir proprement.",
+        text: "Mix grill et plateaux à partager.",
       },
     ],
-    chips: ["12 h de fumage", "4 coupes par matin", "Bois de hêtre", "Lyon 3ᵉ, depuis 2017"],
+    chips: ["Depuis 2017", "Viande fraîche", "Ribs Ô Ribs", "Abidjan"],
     frameCaption: "Ce que vous voyez, vous le mangez",
-    frameNote: "Bois de hêtre · aucune précipitation",
-    stamp: "Smoker · 5 h 30",
-    quote: "« On ne presse rien : c'est le temps qui fait le goût. »",
-    quoteAuthor: "Texas GrillZ — fondateur & chef",
+    frameNote: "Grill, Abidjan",
+    stamp: "Depuis 2017",
+    quote: "Yo baby, what's up ?",
+    // TODO(client): confirmer l'usage
+    quoteAuthor: "King Maxwell",
   },
 
   services: {
@@ -129,8 +128,7 @@ export const siteTexts: SiteTexts = {
     label: "Ce qu'on sert",
     title: "Quatre",
     accent: "Signatures",
-    subtitle:
-      "Du fumé lent au service privatisé : quatre façons de vivre Texas GrillZ.",
+    subtitle: "Du burger au mix grill, nos quatre signatures.",
   },
 
   menu: {
@@ -138,16 +136,16 @@ export const siteTexts: SiteTexts = {
     label: "La Carte",
     title: "Nos",
     accent: "Spécialités",
-    subtitle:
-      "Fumage lent au bois de hêtre, assaisonnements maison. Ouvrez une catégorie pour dérouler les plats.",
+    subtitle: "Ouvrez une catégorie pour dérouler les plats. Prix en FCFA.",
   },
 
   locations: {
     number: "05",
-    label: "Nos Lieux",
-    title: "Nos sites",
-    accent: "en Métropole",
-    subtitle: "Trouvez le Texas GrillZ le plus proche de chez vous.",
+    label: "Nos Adresses",
+    title: "Nos adresses",
+    accent: "à Abidjan",
+    subtitle:
+      "Retrouvez Texas GrillZ à Marcory Zone 4, Riviera Jardin, Deux-Plateaux, Yopougon et Cocody Cité des Arts.",
   },
 
   testimonials: {
@@ -162,8 +160,7 @@ export const siteTexts: SiteTexts = {
     label: "Galerie",
     title: "Ça se",
     accent: "mange des yeux",
-    subtitle:
-      "Ce que vous voyez ici sort de nos cuisines : les mêmes planches, les mêmes portions, servies le soir même.",
+    subtitle: "Des plats servis chaque jour dans nos adresses d'Abidjan.",
   },
 
   info: {
@@ -171,9 +168,8 @@ export const siteTexts: SiteTexts = {
     label: "Infos Pratiques",
     title: "Nous",
     accent: "Trouver",
-    subtitle: "Horaires, adresse et contact — on vous attend.",
-    reservationNote:
-      "Par téléphone ou en ligne. Réservation recommandée le week-end.",
+    subtitle: "Horaires, adresse et contact. On vous attend.",
+    reservationNote: "Par téléphone, par WhatsApp ou avec le formulaire.",
   },
 
   contact: {
@@ -182,17 +178,17 @@ export const siteTexts: SiteTexts = {
     title: "Réservez votre",
     accent: "Table",
     subtitle:
-      "Remplissez le formulaire ci-dessous et nous vous confirmerons votre réservation par email.",
+      "Remplissez le formulaire : nous vous rappelons ou vous écrivons sur WhatsApp pour confirmer.",
     offlineNotice:
-      "Les demandes en ligne ne sont pas encore actives.",
+      "Les demandes en ligne ne sont pas actives : appelez-nous ou écrivez-nous sur WhatsApp.",
     successNote:
-      "Merci pour votre demande de réservation. Nous vous confirmerons par email dans les plus brefs délais.",
+      "Merci ! Nous vous recontactons par téléphone ou WhatsApp pour confirmer votre table.",
   },
 
   hero: {
-    eyebrow: "Barbecue au feu de bois — Lyon",
+    eyebrow: "Grill texan, Abidjan",
     paragraph:
-      "Ça fume depuis l'aube : croûte de poivre noir, laque miel-bourbon, accompagnements faits le matin même.",
+      "Viandes marinées et grillées : ribs, steaks, poulet texan et burgers généreux, à partager entre amis.",
     ctaPrimary: "Réserver une table",
     ctaSecondary: "Découvrir la carte",
   },
@@ -209,7 +205,7 @@ export const siteTexts: SiteTexts = {
  */
 export interface HistoryTexts {
   chapters: {
-    /** Sur-titre numéroté (« 01 — Les Débuts »). */
+    /** Sur-titre numéroté (« 01. Les Débuts »). */
     title: string;
     /** Grand titre, en deux parties : la seconde est mise en or. */
     heading: [string, string];
@@ -222,24 +218,22 @@ export interface HistoryTexts {
 export const historyTexts: HistoryTexts = {
   chapters: [
     {
-      title: "01 — Les Débuts",
-      heading: ["Un voyage au Texas,", "une envie de partage"],
+      title: "01. Les Débuts",
+      heading: ["Un grill de quartier,", "une adresse qui grandit"],
       paragraphs: [
-        "Tout commence par un voyage. Un voyage au cœur du Texas, où le barbecue est bien plus qu'une cuisine : c'est une culture, un art de vivre, un moment de partage.",
-        "De retour en France, une évidence s'impose : cette tradition n'existe pas à Lyon. Une envie naît. Celle de faire découvrir ces saveurs fumées, ces cuissons lentes, ces sauces maison qui font la renommée du BBQ texan.",
+        "Texas GrillZ naît à Abidjan en 2017, d'une idée simple : de la viande fraîche, bien assaisonnée, grillée devant vous.",
+        "Son fondateur, Maxwell Goris, a choisi de miser sur la fraîcheur plutôt que sur la taille des grandes chaînes de fast-food.",
       ],
     },
     {
-      title: "02 — L'Évolution",
-      heading: ["Trois sites,", "une même exigence"],
+      title: "02. L'Évolution",
+      heading: ["Plusieurs adresses,", "une même cuisine"],
       paragraphs: [
-        "En 2020, Texas GrillZ ouvre son deuxième site à Lyon 7ème. En 2023, c'est à Villeurbanne que la famille s'agrandit. Trois adresses, une même exigence : la qualité des produits, le respect des cuissons, et l'accueil chaleureux.",
-        "Aujourd'hui, c'est une équipe de passionnés qui perpétue la tradition. Chaque matin, le bois de hêtre est allumé. Chaque soir, les viandes sont fumées pour le lendemain.",
+        "Après ses premières adresses, l'enseigne ouvre le 1er avril 2022 à Marcory Zone 4, dans une version lounge plus aboutie.",
+        "Un chef venu de France y a formé les équipes ; la carte s'est enrichie d'un menu halal, de burgers de poulet et de spécialités d'agneau. (TODO(client): confirmer que ces plats sont encore servis)",
       ],
     },
   ],
-  quote:
-    "« Le barbecue, c'est le temps. Le temps de fumer, le temps de mijoter, le temps de partager. Chaque pièce de viande qui sort de notre cuisine porte en elle cette philosophie. Nous ne nous pressons jamais, car c'est le temps qui fait la différence. »",
-  signature: { name: "Texas GrillZ", role: "Fondateur & Chef" },
+  quote: "Yo baby, what's up ?",
+  signature: { name: "King Maxwell", role: "Fondateur" },
 };
-

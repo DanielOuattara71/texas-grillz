@@ -49,10 +49,9 @@ export function Marquee({ variant = "gold" }: MarqueeProps) {
               {texts.marquee.map((item) => (
                 <span
                   key={item}
-                  className="flex items-center font-display text-lg font-semibold uppercase tracking-[0.12em] text-coal"
+                  className="mx-8 font-display text-lg font-semibold uppercase tracking-[0.12em] text-coal"
                 >
-                  <span className="mx-8">{item}</span>
-                  <span className="mx-0 text-coal/50">•</span>
+                  {item}
                 </span>
               ))}
             </div>

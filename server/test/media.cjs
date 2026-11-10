@@ -156,10 +156,30 @@ const check = (label, ok, extra = "") => {
   const traversal = await request("DELETE", "/api/admin/media?url=/uploads/../../etc/passwd");
   check("Traversee de repertoire refusee (400)", traversal.status === 400, `recu ${traversal.status}`);
 
+  const menuPut = await request("PUT", "/api/admin/content/menu", JSON.stringify({
+    payload: [
+      {
+        id: "ribs-o-ribs",
+        name: "Ribs Ô Ribs",
+        description: "Travers de porc assaisonnés",
+        price: 13000,
+        category: "bbq",
+        image: url,
+      },
+    ],
+  }), { "Content-Type": "application/json", Cookie: cookie });
+  check("Ecriture du bloc menu acceptee", menuPut.status === 200, `recu ${menuPut.status}`);
+
+  const contentBefore = JSON.parse((await request("GET", "/api/content")).body);
+  check("La photo referencee par le menu avant suppression", contentBefore.menu?.[0]?.image === url);
+
   const deleted = await request("DELETE", `/api/admin/media?url=${encodeURIComponent(url)}`);
   check("Suppression acceptee (204)", deleted.status === 204, `recu ${deleted.status}`);
   const gone = await request("GET", url);
   check("Image supprimee : 404 (pas du HTML)", gone.status === 404, `recu ${gone.status}`);
+
+  const contentAfter = JSON.parse((await request("GET", "/api/content")).body);
+  check("Suppression scrube la reference du bloc menu", !JSON.stringify(contentAfter).includes(url));
 
   server.kill();
   fs.rmSync(tmp, { recursive: true, force: true });

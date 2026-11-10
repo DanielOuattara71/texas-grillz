@@ -1,9 +1,11 @@
+import { useMemo } from "react";
 import { Container } from "../ui/Container";
 import { SectionHeading } from "../ui/SectionHeading";
 import { Reveal } from "../ui/Reveal";
 import { FoodMedia } from "../ui/FoodMedia";
 import { photoSlot } from "../../utils/photoSlot";
 import { useContent } from "../../content/store";
+import { useLieu } from "../../hooks/useLieu";
 import { type Craving } from "../../data/cravings";
 import { priceSpan } from "../../utils/menu";
 import { formatPrice } from "../../utils/formatPrice";
@@ -40,7 +42,7 @@ function CravingCard({
         >
           <FoodMedia
             label={item.name}
-            alt={`${item.name} — ${item.description}`}
+            alt={`${item.name}, ${item.description}`}
             photo={photoSlot(item.image)}
             video={craving.video}
             eager={Boolean(craving.featured)}
@@ -86,15 +88,32 @@ function CravingCard({
  * C'est la partie qui donne envie de manger — photographies, prix, accroches.
  */
 export function Cravings() {
-  // Les envies sont resoutes sur la carte reellement affichee (voir
-  // `content/store.tsx`) : si l'admin modifie un prix ou supprime un plat,
-  // les tuiles suivent sans qu'aucun code ne soit touche.
-  const { cravings, menu, texts } = useContent();
+  // Les envies sont resoutes sur la carte du restaurant choisi (`?lieu=`),
+  // sinon sur la carte commune.
+  const { cravings, menu, menuByLocation, locations, texts } = useContent();
+  const { lieu } = useLieu(locations[0]?.id ?? null);
+  const chosenMenu = useMemo(() => {
+    // Association stricte : si `<id>:menu` existe, on l'utilise exclusivement.
+    if (lieu && Object.hasOwn(menuByLocation, lieu)) return menuByLocation[lieu] ?? [];
+    const first = locations[0];
+    if (first && Object.hasOwn(menuByLocation, first.id)) return menuByLocation[first.id] ?? [];
+    return menu;
+  }, [lieu, menu, menuByLocation, locations]);
+  const resolvedCravings = useMemo(() => {
+    const byId = new Map(chosenMenu.map((i) => [i.id, i]));
+    return cravings
+      .map((c) => {
+        const item = byId.get(c.item.id);
+        if (!item) return null;
+        return { ...c, item };
+      })
+      .filter(Boolean) as typeof cravings;
+  }, [cravings, chosenMenu]);
 
-  if (cravings.length === 0) return null;
+  if (resolvedCravings.length === 0) return null;
 
-  const featured = cravings.find((craving) => craving.featured) ?? cravings[0];
-  const rest = cravings.filter((craving) => craving.id !== featured.id);
+  const featured = resolvedCravings.find((craving) => craving.featured) ?? resolvedCravings[0];
+  const rest = resolvedCravings.filter((craving) => craving.id !== featured.id);
 
   return (
     <section
@@ -109,7 +128,7 @@ export function Cravings() {
           label={texts.cravings.label}
           title={texts.cravings.title}
           accent={texts.cravings.accent}
-          count={`${cravings.length} plats`}
+          count={`${resolvedCravings.length} plats`}
           subtitle={texts.cravings.subtitle}
           align="left"
           className="mb-12 md:mb-16"
@@ -138,7 +157,7 @@ export function Cravings() {
           <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-card border border-cocoa/12 bg-shell/80 px-6 py-5 sm:flex-row sm:items-center">
             <p className="text-[15px] leading-relaxed text-cocoa/85">
               <span className="eyebrow mr-3 text-glaze">Toute la carte</span>
-              {menu.length} plats et accompagnements, de {priceSpan(menu)} —
+              {chosenMenu.length} plats et accompagnements, de {priceSpan(chosenMenu)},
               cuisinés le matin même, servis jusqu'au dernier morceau.
             </p>
             <a

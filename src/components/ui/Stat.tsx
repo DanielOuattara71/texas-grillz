@@ -17,7 +17,7 @@ export function Stat({ proof, className }: { proof: Proof; className?: string })
     <div ref={ref} className={cn("flex flex-col gap-2", className)}>
       <p className="font-display text-[clamp(2.1rem,4vw,3.1rem)] font-semibold leading-none tabular-nums text-cream">
         <span className="sr-only">
-          {`${proof.value.toLocaleString("fr-FR")}${proof.suffix ?? ""} — `}
+          {`${proof.value.toLocaleString("fr-FR")}${proof.suffix ?? ""} `}
         </span>
         <span aria-hidden="true">
           {display}

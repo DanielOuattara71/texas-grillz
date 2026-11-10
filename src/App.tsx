@@ -100,7 +100,7 @@ function App() {
 
   useEffect(() => {
     // Dans l'admin, le fond du site (barres, loader) n'a pas sa place.
-    if (isAdminRoute(path)) document.title = "Administration — Texas GrillZ";
+    if (isAdminRoute(path)) document.title = "Administration, Texas GrillZ";
   }, [path]);
 
   return (

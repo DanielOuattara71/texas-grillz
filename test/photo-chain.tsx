@@ -18,15 +18,15 @@ const check = (label, ok, extra = "") => {
 
 check(
   "Illustration .svg -> recherche du .jpg",
-  photoSlot("/images/products/brisket.svg") === "/images/products/brisket.jpg"
+  photoSlot("/images/products/ribs-o-ribs.svg") === "/images/products/ribs-o-ribs.jpg"
 );
 check(
   "Photo deja uploadee : pas de transformation",
-  photoSlot("/uploads/products/brisket-abc.jpg") === "/uploads/products/brisket-abc.jpg"
+  photoSlot("/uploads/products/ribs-o-ribs-abc.jpg") === "/uploads/products/ribs-o-ribs-abc.jpg"
 );
 check(
   "Photo livree en .jpg : pas de transformation",
-  photoSlot("/images/products/ribs.jpg") === "/images/products/ribs.jpg"
+  photoSlot("/images/products/ribs-o-ribs.jpg") === "/images/products/ribs-o-ribs.jpg"
 );
 check("Chemin vide -> chaine vide", photoSlot("") === "");
 
@@ -52,33 +52,32 @@ check("Adresse vide toleree", mediaUrl("") === "");
 const avecPhoto = mergeContent({
   menu: [
     {
-      id: "brisket",
-      name: "Brisket Fumé",
-      description: "Poitrine de bœuf",
-      price: 24,
-      category: "viandes",
-      image: "/uploads/products/brisket-abc123.jpg",
-      orders: 412,
+      id: "ribs-o-ribs",
+      name: "Ribs Ô Ribs",
+      description: "Travers de porc",
+      price: 13000,
+      category: "bbq",
+      image: "/uploads/products/ribs-o-ribs-abc123.jpg",
     },
   ],
 });
 
 check(
   "La photo deposee est associee au plat",
-  avecPhoto.menu[0]?.image === "/uploads/products/brisket-abc123.jpg"
+  avecPhoto.menu[0]?.image === "/uploads/products/ribs-o-ribs-abc123.jpg"
 );
 check(
   "photoSlot ne transforme pas une photo d'admin",
   photoSlot(avecPhoto.menu[0]?.image ?? "") ===
-    "/uploads/products/brisket-abc123.jpg"
+    "/uploads/products/ribs-o-ribs-abc123.jpg"
 );
 
 /* ── 4. Une envie herite de la photo de son plat ─────────────────────────── */
 
-const envie = avecPhoto.cravings.find((c) => c.item.id === "brisket");
+const envie = avecPhoto.cravings.find((c) => c.item.id === "ribs-o-ribs");
 check(
   "L'envie pointe le plat qui porte la photo",
-  envie?.item.image === "/uploads/products/brisket-abc123.jpg",
+  envie?.item.image === "/uploads/products/ribs-o-ribs-abc123.jpg",
   envie?.item.image ?? "aucune envie"
 );
 
@@ -87,13 +86,12 @@ check(
 const sansPhoto = mergeContent({
   menu: [
     {
-      id: "ribs",
-      name: "Ribs",
-      description: "Travers",
-      price: 22,
-      category: "viandes",
+      id: "brochette-boeuf",
+      name: "Brochette de filet de bœuf",
+      description: "Filet de bœuf grillé",
+      price: 2000,
+      category: "brochettes",
       image: "", // aucune photo associee
-      orders: 388,
     },
   ],
 });
@@ -110,14 +108,14 @@ check(
 
 const livre = defaultContent();
 check(
-  "Le brisket livre pointe une vraie photo",
-  photoSlot(livre.menu.find((m) => m.id === "brisket")?.image ?? "") ===
-    "/images/products/brisket.jpg"
+  "Le ribs-o-ribs livre pointe une vraie photo",
+  photoSlot(livre.menu.find((m) => m.id === "ribs-o-ribs")?.image ?? "") ===
+    "/images/products/ribs-o-ribs.jpg"
 );
-const sansJpg = livre.menu.find((m) => m.id === "mac-cheese");
+const sansJpg = livre.menu.find((m) => m.id === "garn-frites");
 check(
   "Un plat livre sans photo vise un .jpg absent (repli prevu)",
-  photoSlot(sansJpg?.image ?? "").endsWith("mac-cheese.jpg"),
+  photoSlot(sansJpg?.image ?? "").endsWith("garn-frites.jpg"),
   photoSlot(sansJpg?.image ?? "")
 );
 

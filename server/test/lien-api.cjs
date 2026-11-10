@@ -80,9 +80,10 @@ const check = (label, ok, extra = "") => {
     process.exit(1);
   }
 
-  // Avant toute edition, le contenu public est vide.
+  // Avant toute edition, le contenu public est vide (byLocation vide exclu).
   const before = JSON.parse((await request("GET", "/api/content")).body);
-  check("Contenu public vide au demarrage", Object.keys(before).length === 0);
+  const { byLocation: _bl, ...rest } = before;
+  check("Contenu public vide au demarrage", Object.keys(rest).length === 0);
 
   // Connexion.
   const login = await request("POST", "/api/login", {
@@ -94,18 +95,16 @@ const check = (label, ok, extra = "") => {
   check("Connexion admin reussie", login.status === 200 && cookie !== "");
 
   // L'admin ecrit une carte avec un prix different de celui du depot.
-  const prix = 31;
+  const prix = 31000;
   const write = await request("PUT", "/api/admin/content/menu", {
     payload: [
       {
-        id: "brisket",
-        name: "Brisket Fumé",
-        description: "Poitrine de bœuf fumée 12h",
+        id: "ribs-o-ribs",
+        name: "Ribs Ô Ribs",
+        description: "Travers de porc assaisonnés",
         price: prix,
-        category: "viandes",
-        badge: "signature",
-        image: "/uploads/products/brisket-test.jpg",
-        orders: 900,
+        category: "bbq",
+        image: "/uploads/products/ribs-o-ribs-test.jpg",
       },
     ],
   });
@@ -120,7 +119,7 @@ const check = (label, ok, extra = "") => {
   );
   check(
     "La photo deposee est reprise",
-    after.menu?.[0]?.image === "/uploads/products/brisket-test.jpg"
+    after.menu?.[0]?.image === "/uploads/products/ribs-o-ribs-test.jpg"
   );
 
   // Le telephone edite aussi.

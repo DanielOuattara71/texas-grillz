@@ -39,7 +39,7 @@ export const fixedVisuals: Visual[] = [
   },
   {
     id: "hero",
-    label: "Hero — visuel de braise en haut de la page d'accueil",
+    label: "Hero, visuel de braise en haut de la page d'accueil",
     type: "image",
     // Vide : le hero joue alors la boucle video de repli (voir Hero.tsx).
     // Renseignez une photo ici pour la remplacer.
@@ -48,28 +48,28 @@ export const fixedVisuals: Visual[] = [
   },
   {
     id: "concept",
-    label: "Concept — le smoker, section « Fumé, jamais pressé »",
+    label: "Concept : le smoker, section « Fumé, jamais pressé »",
     type: "image",
     src: "",
     alt: "Le smoker, au petit matin",
   },
   {
     id: "histoire",
-    label: "Page Histoire — premier chapitre",
+    label: "Page Histoire, premier chapitre",
     type: "image",
     src: "/images/histoire.jpg",
     alt: "Planches fumées servies chez Texas GrillZ",
   },
   {
     id: "histoire-evolution",
-    label: "Page Histoire — chapitre « L'évolution »",
+    label: "Page Histoire, chapitre « L'évolution »",
     type: "image",
-    src: "/images/locations/lyon-3.jpg",
-    alt: "Salle de Texas GrillZ en service",
+    src: "/images/locations/zone-4.jpg",
+    alt: "Espace service de Texas GrillZ à Marcory Zone 4, Abidjan",
   },
   {
     id: "fondateur",
-    label: "Page Histoire — le fondateur",
+    label: "Page Histoire, le fondateur",
     type: "image",
     src: "/logo.jpg",
     alt: "Portrait du fondateur Texas GrillZ",

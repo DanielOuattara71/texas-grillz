@@ -122,7 +122,7 @@ function Field({
   );
 }
 
-export function TextsScreen() {
+export function TextsScreen({ locationId = null }: { locationId?: string | null }) {
   const { texts: live, historyTexts: liveHistory } = useContent();
   const [draft, setDraft] = useState<SiteTexts | null>(null);
   const [draftHistory, setDraftHistory] = useState<HistoryTexts | null>(null);
@@ -133,11 +133,37 @@ export function TextsScreen() {
     text: string;
   } | null>(null);
 
+  // Cle de contenu : globale (`texts`) ou par siege (`<locationId>:texts`).
+  const textsKey = locationId ? `${locationId}:texts` : "texts";
+  const historyKey = locationId ? `${locationId}:historyTexts` : "historyTexts";
+
   useEffect(() => {
     setDraft(null);
     setDraftHistory(null);
     setDirty(false);
   }, [live, liveHistory]);
+
+  // Siege edite : ses textes sont charges depuis l'API via la cle
+  // `<locationId>:texts`, sinon on retombe sur les textes du store.
+  useEffect(() => {
+    if (!locationId) return;
+    let alive = true;
+    (async () => {
+      try {
+        const data = await api.content();
+        const textsPayload = data[`${locationId}:texts`]?.payload;
+        const historyPayload = data[`${locationId}:historyTexts`]?.payload;
+        if (!alive) return;
+        if (textsPayload) setDraft(textsPayload as SiteTexts);
+        if (historyPayload) setDraftHistory(historyPayload as HistoryTexts);
+      } catch {
+        // Sans API : le contenu global du store reste la source.
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [locationId]);
 
   const current = draft ?? live;
   const currentHistory = draftHistory ?? liveHistory;
@@ -152,8 +178,8 @@ export function TextsScreen() {
     setSaving(true);
     setMessage(null);
     try {
-      await api.saveContent("texts", draft ?? current);
-      if (draftHistory) await api.saveContent("historyTexts", draftHistory);
+      await api.saveContent(textsKey, draft ?? current);
+      if (draftHistory) await api.saveContent(historyKey, draftHistory);
       setDirty(false);
       setMessage({ tone: "success", text: "Textes enregistres." });
     } catch (cause) {

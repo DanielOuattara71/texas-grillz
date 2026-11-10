@@ -25,6 +25,9 @@ const { router: authRouter } = require("./routes-auth");
 const { router: contentRouter } = require("./routes-content");
 const { router: reservationsRouter } = require("./routes-reservations");
 const { router: mediaRouter, UPLOAD_DIR, PUBLIC_PREFIX } = require("./routes-media");
+const { router: usersRouter } = require("./routes-users");
+const { router: locationsRouter } = require("./routes-locations");
+const { router: platsRouter } = require("./routes-plats");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -33,6 +36,32 @@ app.set("trust proxy", 1); // requis derriere le proxy Railway/Render pour le ra
 
 // Derriere HTTPS, helmet active HSTS ; le cookie `secure` s'appuie aussi dessus.
 app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: "cross-origin" } }));
+
+// CORS limité au domaine du site (sans dépendance) : en déploiement
+// monobloc on est même origine ; en séparation, FRONT_URL fixe l'origine.
+const allowedOrigins = (process.env.FRONT_URL || "http://localhost:3000,http://127.0.0.1:3000")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+app.use((req, res, next) => {
+  const origin = String(req.headers.origin || "");
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  }
+  if (req.method === "OPTIONS") {
+    if (origin && allowedOrigins.includes(origin)) {
+      res.status(204).end();
+      return;
+    }
+    if (!origin) return next();
+  }
+  next();
+});
+
 app.use(compression());
 app.use(express.json({ limit: "256kb" }));
 app.use(cookieParser());
@@ -44,6 +73,9 @@ app.use("/api", authRouter);
 app.use("/api", contentRouter);
 app.use("/api", reservationsRouter);
 app.use("/api", mediaRouter);
+app.use("/api", usersRouter);
+app.use("/api", locationsRouter);
+app.use("/api", platsRouter);
 
 /**
  * Medias deposes par l'admin, servis en public (le site en a besoin pour les

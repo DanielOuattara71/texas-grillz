@@ -29,7 +29,8 @@ const imageUrl = z
       if (value === "") return true;
       if (value.startsWith("/uploads/")) return /\.(jpe?g|png|webp|avif)$/i.test(value);
       if (value.startsWith("/images/")) return /\.(jpe?g|png|webp|avif|svg)$/i.test(value);
-      if (value.startsWith("http://") || value.startsWith("https://")) {
+      if (/^https?:\/\//.test(value)) {
+        if (/^https:\/\/res\.cloudinary\.com\//.test(value)) return true; // CDN Cloudinary
         return /\.(jpe?g|png|webp|avif|svg)(\?.*)?$/i.test(value);
       }
       return false;
@@ -40,11 +41,12 @@ const imageUrl = z
     }
   );
 
-/** Prix en euros : deux decimales, jamais negatif. */
+/** Prix en FCFA : entier, jamais negatif. */
 const price = z
   .number({ invalid_type_error: "Le prix doit etre un nombre." })
+  .int("Le prix doit etre un entier en FCFA.")
   .min(0, "Le prix ne peut pas etre negatif.")
-  .max(999, "Prix trop eleve (maximum 999).")
+  .max(1_000_000, "Prix trop eleve (maximum 1 000 000 FCFA).")
   .refine((value) => Number.isFinite(value), "Le prix doit etre un nombre.");
 
 /** Identifiant technique : sert de cle et de nom d'emplacement photo. */
@@ -77,16 +79,27 @@ const dayService = z.object({
 const menuItem = z.object({
   id,
   name: z.string().min(1, "Le titre du plat est obligatoire.").max(120),
-  description: z.string().min(1, "La description est obligatoire.").max(400),
+  description: z.string().max(400),
   price,
-  category: z.enum(["viandes", "accompagnements", "desserts"], {
-    message: "Categorie invalide : viandes, accompagnements ou desserts.",
+  category: z.enum([
+    "mix-grill",
+    "saisonniers",
+    "bbq",
+    "burgers",
+    "brochettes",
+    "garnitures",
+    "weekend",
+    "boissons",
+  ], {
+    message:
+      "Categorie invalide : mix-grill, saisonniers, bbq, burgers, brochettes, garnitures, weekend ou boissons.",
   }),
-  badge: z.enum(["signature", "best-seller", "nouveau"]).optional(),
+  priceFrom: z.boolean().optional(),
+  /** Restaurants qui servent ce plat (restoID). Absent/vide = tous. */
+  locationIds: z.array(z.string().max(60)).optional(),
+  locationId: z.string().max(60).optional(),
   /** URL de la photo du plat : vide = assiette dessinee a la place. */
   image: imageUrl,
-  /** Commandes du mois ecoule, pour le classement « les plus commandes ». */
-  orders: z.number().int().min(0).max(1_000_000).default(0),
 });
 
 /** Une adresse du restaurant. */
@@ -99,8 +112,11 @@ const location = z.object({
   hours: z.string().max(80).optional(),
   image: imageUrl,
   mapsUrl: z.string().max(500).default(""),
-  status: z.enum(["ouvert", "bientot"]).optional(),
+  services: z.array(z.string().max(120)).optional(),
   schedule: z.array(dayService).length(7).optional(),
+  active: z.boolean().optional(),
+  published: z.boolean().optional(),
+  status: z.enum(["ouvert", "bientot"]).optional(),
 });
 
 /** Un avis client. */
@@ -138,7 +154,7 @@ const site = z.object({
       reviews: z.number().int().min(0).default(0),
       url: z.string().max(500).default(""),
     })
-    .default({ score: 0, reviews: 0, url: "" }),
+    .optional(),
   schedule: z.array(dayService).length(7).optional(),
 });
 
@@ -209,6 +225,6 @@ function validateBlock(key, payload) {
 module.exports = {
   validateBlock,
   BLOCKS,
-  schemas: { menuItem, location, testimonial, service, site, dayService, imageUrl },
+  schemas: { menuItem, location, testimonial, service, site, dayService, imageUrl, price },
 };
 

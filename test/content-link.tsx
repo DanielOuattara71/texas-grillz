@@ -13,17 +13,15 @@ import { mergeContent, defaultContent } from "../src/content/store";
 const edited = mergeContent({
   menu: [
     {
-      id: "brisket",
-      name: "Brisket Fumé",
-      description: "Poitrine de bœuf fumée 12h",
-      price: 29, // prix modifie dans l'admin
-      category: "viandes",
-      badge: "signature",
-      image: "/uploads/products/brisket-abc123.jpg", // photo deposee
-      orders: 500,
+      id: "ribs-o-ribs",
+      name: "Ribs Ô Ribs",
+      description: "Travers de porc assaisonnés",
+      price: 15000, // prix modifie dans l'admin
+      category: "bbq",
+      image: "/uploads/products/ribs-o-ribs-abc123.jpg", // photo deposee
     },
   ],
-  site: { phone: "04 11 22 33 44" },
+  site: { phone: "05 01 90 30 90" },
 });
 
 const results = [];
@@ -35,18 +33,18 @@ const check = (label, ok, extra = "") => {
 // Le prix edite est pris en compte.
 check(
   "Prix modifie par l'admin pris en compte",
-  edited.menu[0]?.price === 29,
+  edited.menu[0]?.price === 15000,
   `prix = ${edited.menu[0]?.price}`
 );
 
 // La photo deposee est reprise telle quelle.
 check(
   "Photo deposee reprise",
-  edited.menu[0]?.image === "/uploads/products/brisket-abc123.jpg"
+  edited.menu[0]?.image === "/uploads/products/ribs-o-ribs-abc123.jpg"
 );
 
 // Le telephone edite est repris.
-check("Telephone edite repris", edited.phone === "04 11 22 33 44", edited.phone);
+check("Telephone edite repris", edited.phone === "05 01 90 30 90", edited.phone);
 
 // Les envies pointent sur la carte editee (pas sur le fichier livre).
 check(
@@ -56,7 +54,7 @@ check(
 );
 check(
   "Envie herite du nouveau prix",
-  edited.cravings.find((c) => c.item.id === "brisket")?.item.price === 29
+  edited.cravings.find((c) => c.item.id === "ribs-o-ribs")?.item.price === 15000
 );
 
 // Un bloc absent de la reponse retombe sur les donnees livrees.

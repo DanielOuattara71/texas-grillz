@@ -1,11 +1,14 @@
 import { Container } from "../ui/Container";
 import { SectionHeading } from "../ui/SectionHeading";
 import { RevealGroup } from "../ui/RevealGroup";
-import { useContent, useHourLines } from "../../content/store";
+import { Button } from "../ui/Button";
+import { useContent } from "../../content/store";
+import { formatHourGroups } from "../../utils/availability";
+import { telHref, whatsappHref } from "../../utils/phone";
 
 export function Info() {
-  const { address, phone, email, texts } = useContent();
-  const hours = useHourLines();
+  const { address, phone, email, texts, locations, locationHours } = useContent();
+  const hours = locations.flatMap((loc) => formatHourGroups(locationHours[loc.id] ?? loc.schedule ?? []).map((h) => ({ ...h, location: loc.name })));
   return (
     <section id="infos" className="section-stack relative overflow-hidden bg-charcoal py-24 md:py-36">
       {/* Le mur de l'affiche, en fond de page : très présent en haut, estompé ensuite */}
@@ -33,10 +36,10 @@ export function Info() {
               <ul className="space-y-4">
                 {hours.map((h) => (
                   <li
-                    key={h.days}
-                    className="flex items-center justify-between border-b border-gold/15 pb-4"
+                    key={`${h.location}-${h.days}`}
+                    className="flex items-center justify-between gap-4 border-b border-gold/15 pb-4"
                   >
-                    <span className="text-cream font-medium">{h.days}</span>
+                    <span className="text-cream font-medium">{h.location}, {h.days}</span>
                     <span className="font-display tabular-nums text-gold">
                       {h.time}
                     </span>
@@ -52,7 +55,15 @@ export function Info() {
                 <h3 className="eyebrow text-gold mb-4">
                   Adresse
                 </h3>
-                <p className="text-cream leading-relaxed">{address}</p>
+                <ul className="space-y-3">
+                  {locations.map((loc) => (
+                    <li key={loc.id} className="text-cream leading-relaxed">
+                      <p className="font-medium">{loc.name}</p>
+                      <p className="text-smoke text-sm">{loc.address} · {loc.phone}</p>
+                    </li>
+                  ))}
+                  {locations.length === 0 && <li className="text-cream leading-relaxed">{address}</li>}
+                </ul>
               </div>
               <div>
                 <h3 className="eyebrow text-gold mb-4">
@@ -61,7 +72,7 @@ export function Info() {
                 <ul className="space-y-3">
                   <li>
                     <a
-                      href={`tel:${phone.replace(/\s/g, "")}`}
+                      href={telHref(phone)}
                       className="text-cream hover:text-gold transition-colors duration-200"
                     >
                       {phone}
@@ -75,6 +86,16 @@ export function Info() {
                       {email}
                     </a>
                   </li>
+                  <li>
+                    <a
+                      href={whatsappHref(phone, "Bonjour, je souhaite réserver une table chez Texas GrillZ.")}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-cream hover:text-gold transition-colors duration-200"
+                    >
+                      WhatsApp
+                    </a>
+                  </li>
                 </ul>
               </div>
               <div>
@@ -84,6 +105,18 @@ export function Info() {
                 <p className="text-smoke text-sm leading-relaxed">
                   {texts.info.reservationNote}
                 </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button
+                    href={whatsappHref(phone, "Bonjour, je souhaite réserver une table chez Texas GrillZ.")}
+                    variant="secondary"
+                    className="border-cream/25 text-cream hover:border-gold hover:text-gold"
+                  >
+                    WhatsApp
+                  </Button>
+                  <Button href={telHref(phone)} variant="primary">
+                    Appeler
+                  </Button>
+                </div>
               </div>
             </div>
           </RevealGroup>
